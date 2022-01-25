@@ -33,40 +33,41 @@ public class DoubanFetcher extends BookFetcher {
     public void getBookInfo(final Context context, final String isbn, final int mode) {
         mContext = context;
         Retrofit mRetrofit = new Retrofit.Builder()
-                .baseUrl("https://api.douban.com/v2/book/")
+                .baseUrl(BuildConfig.doubanServer)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         DB_API api = mRetrofit.create(DB_API.class);
         //create an instance of douban api
         byte[] data = Base64.decode(BuildConfig.doubanApiKey, Base64.DEFAULT);
         data[0] -= 1; data[1] += 2;
-        Call<DouBanJson> call = api.getDBResult(isbn, new String(data, StandardCharsets.UTF_8));
+        Call<DouBanSearchResultByIsbn> call = api.getDBResult(isbn);
 
-        call.enqueue(new Callback<DouBanJson>() {
+        call.enqueue(new Callback<DouBanSearchResultByIsbn>() {
             @Override
-            public void onResponse(Call<DouBanJson> call, Response<DouBanJson> response) {
-                if (response.code() == 200) {
-                    Log.i(TAG, "GET Douban information successfully, id = " + response.body().getId()
-                            + ", title = " + response.body().getTitle());
+            public void onResponse(Call<DouBanSearchResultByIsbn> call, Response<DouBanSearchResultByIsbn> response) {
+                DouBanSearchResultByIsbn result = response.body();
+                if (response.code() == 200 && result != null && result.isSuccess()) {
+                    Log.i(TAG, "GET Douban information successfully, result");
+                    DouBanSearchResultByIsbn.DataDTO data = result.getData();
                     mBook = new Book();
-                    mBook.setTitle(response.body().getTitle());
+                    mBook.setTitle(data.getTitle());
                     //mBook.setId(Long.parseLong(response.body().getId(),10));
-                    mBook.setIsbn(isbn);
-                    if (response.body().getAuthor().size() != 0) {
-                        mBook.setAuthors(response.body().getAuthor());
+                    mBook.setIsbn(data.getIsbn());
+                    if (data.getAuthor().size() != 0) {
+                        mBook.setAuthors(data.getAuthor());
                     } else {
-                        mBook.setAuthors(new ArrayList<String>());
+                        mBook.setAuthors(new ArrayList<>());
                     }
-                    if (response.body().getTranslator().size() != 0) {
-                        mBook.setTranslators(response.body().getTranslator());
+                    if (data.getTranslator().size() != 0) {
+                        mBook.setTranslators(data.getTranslator());
                     } else {
-                        mBook.setTranslators(new ArrayList<String>());
+                        mBook.setTranslators(new ArrayList<>());
                     }
 
-                    mBook.getWebIds().put("douban", response.body().getId());
-                    mBook.setPublisher(response.body().getPublisher());
+                    mBook.getWebIds().put("douban", data.getId());
+                    mBook.setPublisher(data.getPublish());
 
-                    String rawDate = response.body().getPubdate();
+                    String rawDate = data.getPublishDate();
                     Log.i(TAG, "Date raw = " + rawDate);
                     String year, month;
                     if (rawDate.contains("-")) {
@@ -88,11 +89,11 @@ public class DoubanFetcher extends BookFetcher {
                     Calendar calendar = Calendar.getInstance();
                     calendar.set(Integer.parseInt(year), Integer.parseInt(month) - 1, 1);
                     mBook.setPubTime(calendar);
-                    final String imageURL = response.body().getImages().getLarge();
+                    final String imageURL = data.getCover_url();
                     SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(mContext);
                     boolean addWebsite = pref.getBoolean("settings_pref_acwebsite", true);
                     if (addWebsite) {
-                        mBook.setWebsite("https://book.douban.com/subject/" + response.body().getId());
+                        mBook.setWebsite(data.getUrl());
                     }
                     if (mode == 0) {
                         ((SingleAddActivity) mContext).fetchSucceed(mBook, imageURL);
@@ -114,7 +115,7 @@ public class DoubanFetcher extends BookFetcher {
             }
 
             @Override
-            public void onFailure(Call<DouBanJson> call, Throwable t) {
+            public void onFailure(Call<DouBanSearchResultByIsbn> call, Throwable t) {
                 Log.w(TAG, "GET Douban information failed, " + t.toString());
                 if (mode == 0) {
                     ((SingleAddActivity) mContext).fetchFailed(
@@ -132,7 +133,7 @@ public class DoubanFetcher extends BookFetcher {
 
     private interface DB_API {
         @GET("isbn/{isbn}")
-        Call<DouBanJson> getDBResult(@Path("isbn") String isbn, @Query("apikey") String apikey);
+        Call<DouBanSearchResultByIsbn> getDBResult(@Path("isbn") String isbn);
     }
 
 }

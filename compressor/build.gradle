@@ -55,8 +55,8 @@ android {
     }
 }
 
-apply from: 'https://raw.githubusercontent.com/zetbaitsu/JCenter/master/installv1.gradle'
-apply from: 'https://raw.githubusercontent.com/zetbaitsu/JCenter/master/bintrayv1.gradle'
+apply from: 'installv1.gradle'
+apply from: 'bintrayv1.gradle'
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])

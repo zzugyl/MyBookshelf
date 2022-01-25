@@ -12,3 +12,4 @@
 .idea
 /app/release
 apiKeys.properties
+server.gradle

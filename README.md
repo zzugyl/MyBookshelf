@@ -4,6 +4,16 @@
 
 [这里]:https://smartjinyu.com/android/2017/02/09/mybookshelf.html
 
+### Update January 2022
+
+Now you can build your own server by [douban-book-api], and add *server.gradle* in project directory, put your own server address in following format:
+
+~~~gradle
+ext.douban_server_url = "your server address"
+~~~
+
+[douban-book-api]:https://github.com/acdzh/douban-book-api
+
 <!-- ### Update September 2020
 
 Due to the changes on Douban API recently , cururently Bookshelf cannot retrieve data from douban.com. Sorry for the inconvenience.  -->
