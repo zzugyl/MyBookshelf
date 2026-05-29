@@ -1,12 +1,12 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion project.CompileSdkVersion
-    buildToolsVersion project.BuildToolsVersion
+    namespace "moe.feng.alipay.zerosdk"
+    compileSdk project.CompileSdkVersion
 
     defaultConfig {
-        minSdkVersion 21
-        targetSdkVersion project.TargetSdkVersion
+        minSdk 21
+        targetSdk project.TargetSdkVersion
         versionCode 1
         versionName "1.1"
     }
