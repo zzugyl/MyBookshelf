@@ -2,8 +2,6 @@
 <resources>
     <string name="app_name">BookShelf</string>
     <string name="about_preference_category_title">关于</string>
-    <string name="about_preference_donate_title">捐赠</string>
-    <string name="about_preference_donate_toast">我的账号已复制到剪贴板，感谢您的捐赠！</string>
     <string name="about_preference_feedback_summary">发送建议或反馈</string>
     <string name="about_preference_feedback_title">反馈</string>
     <string name="about_preference_github_repository">开源项目</string>
@@ -186,12 +184,7 @@
     <string name="separator_text_view">详情(来源: %1$s)</string>
     <string name="settings_web_services_min_toast">请至少选择一个网络服务！</string>
     <string name="about_preference_rate_title">评分</string>
-    <string name="drawer_item_donate">捐赠</string>
     <string name="about_preference_rate_summary">如果觉得好用，请为我们打五分</string>
-    <string name="about_donate_dialog_content">您的捐赠是我们继续努力的动力所在。\n我的支付宝&amp; PayPal 账户是:smartjinyu@gmail.com.\n感谢您的支持！</string>
-    <string name="about_donate_dialog_negative0">复制账号</string>
-    <string name="about_donate_dialog_positive0">前往支付宝</string>
-    <string name="about_preference_donate_summary">非常欢迎您的捐赠</string>
     <string name="about_preference_term_of_service">使用条款</string>
     <string name="accept_term_of_service_dialog_deny_toast">您必须接受使用条款后才能继续使用本应用！</string>
     <string name="accept_term_of_service_dialog_negative">拒绝</string>
@@ -200,7 +193,6 @@
     <string name="cover_change_dialog_title">更换封面</string>
     <string name="cover_change_fail">处理封面图片错误！请查看日志文件并联系开发者！</string>
     <string name="cover_change_no_camera_app">没有找到已安装的相机应用！</string>
-    <string name="drawer_item_donate_click_toast">我的 PayPal &amp; 支付宝账号已经复制到剪贴板，感谢您的捐赠！</string>
     <string name="export_csv_caution_dialog_content">此功能是为了您更好地管理图书，导出的.csv文件不能再被导入本应用。\n如果您想要将来恢复应用数据，请使用备份\\还原功能！</string>
     <string name="export_csv_caution_dialog_title">注意</string>
     <string name="export_csv_dialog_at_least_toast">请至少选择一项！</string>

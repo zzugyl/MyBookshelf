@@ -1,1 +1,1 @@
-include ':app', 'AlipayZeroSdk', ':compressor'
+include ':app', ':compressor'
