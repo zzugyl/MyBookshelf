@@ -105,7 +105,7 @@ public class BatchAddActivity extends AppCompatActivity {
             Gson gson = new Gson();
             selectedServices = gson.fromJson(rawWS, type);
         } else {
-            selectedServices = new Integer[]{0, 1}; //two webServices currently
+            selectedServices = new Integer[]{0, 1, 2}; //three webServices
         }
 
     }
@@ -361,6 +361,9 @@ public class BatchAddActivity extends AppCompatActivity {
                 fetcher.getBookInfo(this, isbn, 1);
             } else if (selectedServices[indexOfServiceTested] == 1) {
                 OpenLibraryFetcher fetcher = new OpenLibraryFetcher();
+                fetcher.getBookInfo(this, isbn, 1);
+            } else if (selectedServices[indexOfServiceTested] == 2) {
+                GoogleBooksFetcher fetcher = new GoogleBooksFetcher();
                 fetcher.getBookInfo(this, isbn, 1);
             }
         } else {

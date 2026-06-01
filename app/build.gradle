@@ -16,6 +16,12 @@ def static getDoubanApiKey() {
     return base64
 }
 
+def static getGoogleBooksApiKey() {
+    def Properties props = new Properties()
+    props.load(new FileInputStream(new File('apiKeys.properties')))
+    return props['googleBooksApiKey']
+}
+
 android {
     namespace "com.smartjinyu.mybookshelf"
     compileSdk project.CompileSdkVersion
@@ -34,11 +40,13 @@ android {
             buildConfigField 'String', "doubanApiKey", "\"" + getDoubanApiKey() + "\""
             buildConfigField 'String', "appcenterApiKey", "\"" + getAppCenterApiKey() + "\""
             buildConfigField 'String', "doubanServer", "\"${douban_server_url}\""
+            buildConfigField 'String', "googleBooksApiKey", "\"" + getGoogleBooksApiKey() + "\""
         }
         debug {
             buildConfigField 'String', "doubanApiKey", "\"" + getDoubanApiKey() + "\""
             buildConfigField 'String', "appcenterApiKey", "\"" + getAppCenterApiKey() + "\""
             buildConfigField 'String', "doubanServer", "\"${douban_server_url}\""
+            buildConfigField 'String', "googleBooksApiKey", "\"" + getGoogleBooksApiKey() + "\""
         }
     }
     lint {

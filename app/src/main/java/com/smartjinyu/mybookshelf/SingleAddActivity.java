@@ -264,7 +264,7 @@ public class SingleAddActivity extends AppCompatActivity implements ZXingScanner
             Gson gson = new Gson();
             selectedServices = gson.fromJson(rawWS, type);
         } else {
-            selectedServices = new Integer[]{0, 1}; //two webServices currently
+            selectedServices = new Integer[]{0, 1, 2}; //three webServices
         }
 
         if (selectedServices[indexOfServiceTested] == 0) {
@@ -272,6 +272,9 @@ public class SingleAddActivity extends AppCompatActivity implements ZXingScanner
             fetcher.getBookInfo(this, isbn, 0);
         } else if (selectedServices[indexOfServiceTested] == 1) {
             OpenLibraryFetcher fetcher = new OpenLibraryFetcher();
+            fetcher.getBookInfo(this, isbn, 0);
+        } else if (selectedServices[indexOfServiceTested] == 2) {
+            GoogleBooksFetcher fetcher = new GoogleBooksFetcher();
             fetcher.getBookInfo(this, isbn, 0);
         }
     }
@@ -349,6 +352,9 @@ public class SingleAddActivity extends AppCompatActivity implements ZXingScanner
                 fetcher.getBookInfo(this, isbn, 0);
             } else if (selectedServices[indexOfServiceTested] == 1) {
                 OpenLibraryFetcher fetcher = new OpenLibraryFetcher();
+                fetcher.getBookInfo(this, isbn, 0);
+            } else if (selectedServices[indexOfServiceTested] == 2) {
+                GoogleBooksFetcher fetcher = new GoogleBooksFetcher();
                 fetcher.getBookInfo(this, isbn, 0);
             }
         } else {

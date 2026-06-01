@@ -161,6 +161,7 @@
     <string-array name="settings_web_services_entries">
         <item>DouBan.com</item>
         <item>OpenLibrary.org</item>
+        <item>Google Books</item>
     </string-array>
     <string name="title_empty">标题不能为空！</string>
     <string name="settings_backup_category">备份</string>
