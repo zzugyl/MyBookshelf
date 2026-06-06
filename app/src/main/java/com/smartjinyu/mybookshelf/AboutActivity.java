@@ -40,7 +40,7 @@ public class AboutActivity extends AppCompatActivity {
         }
         if (savedInstanceState == null) {
             AboutFragment aboutFragment = new AboutFragment();
-            getFragmentManager().beginTransaction().add(R.id.activity_about_container, aboutFragment).commit();
+            getSupportFragmentManager().beginTransaction().add(R.id.activity_about_container, aboutFragment).commit();
         }
     }
 

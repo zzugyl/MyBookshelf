@@ -9,9 +9,9 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
-import android.preference.Preference;
-import android.preference.PreferenceFragment;
-import android.preference.PreferenceManager;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceManager;
 
 import androidx.annotation.NonNull;
 
@@ -55,7 +55,7 @@ import java.util.zip.ZipOutputStream;
  * Created by smartjinyu on 2017/2/8.
  */
 
-public class SettingsFragment extends PreferenceFragment {
+public class SettingsFragment extends PreferenceFragmentCompat {
     private static final String TAG = "SettingsFragment";
 
     private static final int CREATE_BACKUP_FILE_CODE = 6;
@@ -73,9 +73,13 @@ public class SettingsFragment extends PreferenceFragment {
     private List<Integer> exportCSVList = null;
 
     @Override
+    public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
+        setPreferencesFromResource(R.xml.settings_preference, rootKey);
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        addPreferencesFromResource(R.xml.settings_preference);
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         setBackupCategory();
         setWebServicesPreference();

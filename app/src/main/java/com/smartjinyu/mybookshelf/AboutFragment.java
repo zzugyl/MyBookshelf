@@ -6,8 +6,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.Preference;
-import android.preference.PreferenceFragment;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceFragmentCompat;
 
 import androidx.appcompat.app.AlertDialog;
 
@@ -23,7 +23,7 @@ import java.util.Locale;
  * Created by smartjinyu on 2017/2/5.
  */
 
-public class AboutFragment extends PreferenceFragment {
+public class AboutFragment extends PreferenceFragmentCompat {
     private static final String TAG = "AboutFragment";
 
     private Preference namePreference;
@@ -33,9 +33,13 @@ public class AboutFragment extends PreferenceFragment {
     private Preference privacyPolicyPreference;
 
     @Override
+    public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
+        setPreferencesFromResource(R.xml.about_preference, rootKey);
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        addPreferencesFromResource(R.xml.about_preference);
 
         namePreference = findPreference("about_pref_name");
         namePreference.setSummary(BuildConfig.VERSION_NAME + "(" + BuildConfig.VERSION_CODE + ")");

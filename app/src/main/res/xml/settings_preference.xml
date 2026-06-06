@@ -5,7 +5,7 @@
             android:title="@string/settings_web_services_title"
             android:key="settings_pref_web_services"
             android:persistent="false" />
-        <SwitchPreference
+        <SwitchPreferenceCompat
             android:title="@string/settings_auto_complete_website_title"
             android:key="settings_pref_acwebsite"
             android:defaultValue="true" />
@@ -23,10 +23,10 @@
             android:key="settings_pref_export_to_csv" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/settings_general">
-        <SwitchPreference
+        <SwitchPreferenceCompat
             android:title="@string/settings_check_update_title"
             android:key="settings_pref_check_update"
-            android:defaultValue="1"/>
+            android:defaultValue="true"/>
     </PreferenceCategory>
 
 </PreferenceScreen>
