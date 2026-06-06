@@ -1,6 +1,7 @@
 package com.smartjinyu.mybookshelf;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -135,9 +136,9 @@ public class SettingsFragment extends PreferenceFragment {
                                         backupFileIntent.setType("text/csv");
                                         backupFileIntent.putExtra(Intent.EXTRA_TITLE, filename);
 
-                                        if (backupFileIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+                                        try {
                                             startActivityForResult(backupFileIntent, EXPORT_CSV_FILE_CODE);
-                                        } else {
+                                        } catch (ActivityNotFoundException e) {
                                             Log.e(TAG, "No Document Provider Available");
                                             Map<String, String> logEvents = new HashMap<>();
                                             logEvents.put("Export CSV", "No Document Provider Available");
@@ -237,9 +238,9 @@ public class SettingsFragment extends PreferenceFragment {
                 backupFileIntent.addCategory(Intent.CATEGORY_OPENABLE);
                 backupFileIntent.setType("application/zip");
                 backupFileIntent.putExtra(Intent.EXTRA_TITLE, filename);
-                if (backupFileIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+                try {
                     startActivityForResult(backupFileIntent, CREATE_BACKUP_FILE_CODE);
-                } else {
+                } catch (ActivityNotFoundException e) {
                     Log.e(TAG, "No Document Provider Available");
                     logEvents.put("Backup", "No Document Provider Available");
 
@@ -261,9 +262,9 @@ public class SettingsFragment extends PreferenceFragment {
             restoreFileIntent.addCategory(Intent.CATEGORY_OPENABLE);
             restoreFileIntent.setType("application/zip");
             // restoreFileIntent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, pickerInitialUri); // requires >= API 26
-            if (restoreFileIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+            try {
                 startActivityForResult(restoreFileIntent, OPEN_BACKUP_FILE_CODE);
-            } else {
+            } catch (ActivityNotFoundException e) {
                 Log.e(TAG, "No Document Provider Available");
                 logEvents.put("Restore", "No Document Provider Available");
 
