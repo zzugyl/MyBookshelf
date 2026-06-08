@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import androidx.core.content.ContextCompat;
@@ -67,7 +68,11 @@ public class BookDetailActivity extends SlidingActivity {
         // Instead of overriding onCreate(), we should override init().
         // Intent will pass in savedInstanceState
         Intent intent = getIntent();
-        mBook = (Book) intent.getSerializableExtra(Intent_Book_ToEdit);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            mBook = intent.getSerializableExtra(Intent_Book_ToEdit, Book.class);
+        } else {
+            mBook = (Book) intent.getSerializableExtra(Intent_Book_ToEdit);
+        }
         setTitle(mBook.getTitle());
         setPrimaryColors(
                 ContextCompat.getColor(this, R.color.colorPrimary),

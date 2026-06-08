@@ -82,9 +82,7 @@ dependencies {
     implementation 'com.klinkerapps:sliding-activity:1.5.2'
     implementation 'com.mikepenz:materialdrawer:6.1.2'
     implementation 'com.github.promeg:tinypinyin:2.0.3'
-    // implementation 'com.lapism:searchview:3.8'
     implementation project(':compressor')
-    // implementation 'id.zelory:compressor:2.1.0'
     implementation('com.squareup.retrofit2:converter-simplexml:2.9.0') {
         exclude group: 'xpp3', module: 'xpp3'
         exclude group: 'stax', module: 'stax-api'

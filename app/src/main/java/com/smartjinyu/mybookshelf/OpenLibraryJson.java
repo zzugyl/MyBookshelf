@@ -1,7 +1,5 @@
 package com.smartjinyu.mybookshelf;
 
-// FIXME generate failure  field _$ISBN97809802004475
-
 import java.util.List;
 
 /**

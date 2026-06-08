@@ -51,7 +51,6 @@ public class DoubanFetcher extends BookFetcher {
                     DouBanSearchResultByIsbn.DataDTO data = result.getData();
                     mBook = new Book();
                     mBook.setTitle(data.getTitle());
-                    //mBook.setId(Long.parseLong(response.body().getId(),10));
                     mBook.setIsbn(data.getIsbn());
                     if (data.getAuthor().size() != 0) {
                         mBook.setAuthors(data.getAuthor());

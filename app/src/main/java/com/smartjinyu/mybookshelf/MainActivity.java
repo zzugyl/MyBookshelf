@@ -630,7 +630,6 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(View view, int position) {
                 Log.d(TAG, "Click recyclerView position = " + position);
                 if (position != -1) {
-                    //// TODO: 2017/2/19 for unknown reason, in some cases position will be -1
                     if (isMultiSelect) {
                         multiSelect(position - 1);
                     } else {
@@ -692,7 +691,6 @@ public class MainActivity extends AppCompatActivity {
             if (book.getPublisher().length() != 0) {
                 if (authorAndPub.length() != 0) {
                     authorAndPub.append(" ");
-                    //authorAndPub.append(getResources().getString(R.string.author_suffix));
                     authorAndPub.append(",   ");
                 }
                 authorAndPub.append(book.getPublisher());
@@ -808,7 +806,6 @@ public class MainActivity extends AppCompatActivity {
             // for example, if searchView is expanded, mSpinner is null
             return;
         }
-        //if(mBooks != null) BookShelfLab.get(this).calculateBookCnt(mBooks);
         List<BookShelf> bookShelves = BookShelfLab.get(this).getBookShelves();
         BookShelf allBookShelf = new BookShelf();
         allBookShelf.setTitle(getResources().getString(R.string.spinner_all_bookshelf)); // never save to disk
@@ -1289,7 +1286,6 @@ public class MainActivity extends AppCompatActivity {
             }
             if(searchView != null && !searchView.isIconified()){
                 searchView.setIconified(true);
-                // TODO is this needed?
             }
             mRecyclerViewAdapter.notifyDataSetChanged();
         }
@@ -1350,7 +1346,6 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 wv.loadUrl("file:///android_asset/termOfService_en.html");
             }
-            // TODO update it
             wv.setWebViewClient(new WebViewClient() {
                 @SuppressWarnings("deprecation")
                 @Override
