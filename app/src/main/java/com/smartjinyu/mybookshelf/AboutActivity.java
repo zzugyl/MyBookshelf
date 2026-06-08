@@ -5,10 +5,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import android.view.MenuItem;
 
-import com.microsoft.appcenter.analytics.Analytics;
-
-import java.util.HashMap;
-import java.util.Map;
 
 
 /**
@@ -23,14 +19,6 @@ public class AboutActivity extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_about);
-
-        Map<String, String> logEvents = new HashMap<>();
-        logEvents.put("Activity", TAG);
-        Analytics.trackEvent("onCreate", logEvents);
-
-        logEvents.clear();
-        logEvents.put("Name", "onCreate");
-        Analytics.trackEvent(TAG, logEvents);
 
         Toolbar mToolbar = (Toolbar) findViewById(R.id.about_toolbar);
         setSupportActionBar(mToolbar);

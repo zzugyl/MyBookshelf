@@ -1,9 +1,9 @@
 apply plugin: 'com.android.application'
 
-def static getAppCenterApiKey() {
-    def Properties props = new Properties()
-    props.load(new FileInputStream(new File('apiKeys.properties')))
-    return props['appcenterApiKey']
+def getGitCommitCount() {
+    def proc = "git rev-list --count HEAD".execute(null, rootProject.projectDir)
+    proc.waitFor()
+    return proc.text.trim().toInteger()
 }
 
 def static getDoubanApiKey() {
@@ -29,7 +29,7 @@ android {
         applicationId "com.smartjinyu.mybookshelf"
         minSdk 21
         targetSdk project.TargetSdkVersion
-        versionCode 12
+        versionCode getGitCommitCount()
         versionName "2.0"
     }
 
@@ -38,13 +38,11 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             buildConfigField 'String', "doubanApiKey", "\"" + getDoubanApiKey() + "\""
-            buildConfigField 'String', "appcenterApiKey", "\"" + getAppCenterApiKey() + "\""
             buildConfigField 'String', "doubanServer", "\"${douban_server_url}\""
             buildConfigField 'String', "googleBooksApiKey", "\"" + getGoogleBooksApiKey() + "\""
         }
         debug {
             buildConfigField 'String', "doubanApiKey", "\"" + getDoubanApiKey() + "\""
-            buildConfigField 'String', "appcenterApiKey", "\"" + getAppCenterApiKey() + "\""
             buildConfigField 'String', "doubanServer", "\"${douban_server_url}\""
             buildConfigField 'String', "googleBooksApiKey", "\"" + getGoogleBooksApiKey() + "\""
         }
@@ -93,8 +91,6 @@ dependencies {
         exclude group: 'stax', module: 'stax'
     }
     implementation files('libs/opencsv-3.9.jar')
-    implementation "com.microsoft.appcenter:appcenter-analytics:3.3.1"
-    implementation "com.microsoft.appcenter:appcenter-crashes:3.3.1"
 
 
 }

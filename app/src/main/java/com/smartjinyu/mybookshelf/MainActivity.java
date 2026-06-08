@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SearchView;
@@ -48,9 +49,6 @@ import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
-import com.microsoft.appcenter.AppCenter;
-import com.microsoft.appcenter.analytics.Analytics;
-import com.microsoft.appcenter.crashes.Crashes;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
@@ -107,17 +105,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        AppCenter.start(getApplication(), BuildConfig.appcenterApiKey,
-                Analytics.class, Crashes.class);
-
-        Map<String, String> logEvents = new HashMap<>();
-        logEvents.put("Activity", TAG);
-        Analytics.trackEvent("onCreate", logEvents);
-
-        logEvents.clear();
-        logEvents.put("Name", "onCreate");
-        Analytics.trackEvent(TAG, logEvents);
-
         defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         sortMethod = defaultSharedPreferences.getInt(SORT_METHOD, 0);
 
@@ -143,7 +130,35 @@ public class MainActivity extends AppCompatActivity {
             }, 3000);
         }
 
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (mDrawer != null && mDrawer.isDrawerOpen()) {
+                    mDrawer.closeDrawer();
+                } else {
+                    if (defaultSharedPreferences != null) {
+                        int startTimes = defaultSharedPreferences.getInt("launchTimes", 1);
+                        Log.i(TAG, "startTimes = " + startTimes);
+                        defaultSharedPreferences.edit().putInt("launchTimes", startTimes + 1).apply();
+                        boolean muteRatings = defaultSharedPreferences.getBoolean("muteRatings", false);
+                        boolean isRated = defaultSharedPreferences.getBoolean("isRated", false);
+                        Log.i(TAG, "rating info muteRatings = " + muteRatings + ", isRated = " + isRated);
+                        if (!muteRatings &&
+                                !isRated &&
+                                startTimes % getResources().getInteger(R.integer.rating_after_start_times) == 0 &&
+                                mBooks.size() > getResources().getInteger(R.integer.rating_if_books_more_than)) {
+                            showRatingDialog();
+                        } else {
+                            finish();
+                        }
+                    } else {
+                        finish();
+                    }
+                }
+            }
+        });
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         Log.d(TAG, "onCreateOptionsMenu()");
@@ -153,9 +168,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onMenuItemActionExpand(MenuItem item) {
                 Log.d(TAG, "searchItem expand");
-                Map<String, String> logEvents = new HashMap<>();
-                logEvents.put("Search", "SearchItem Expanded");
-                Analytics.trackEvent(TAG, logEvents);
                 if (mActionAddButton != null) {
                     Log.d(TAG, "Hide FAM 2");
                     mActionAddButton.setVisibility(View.GONE);
@@ -390,10 +402,6 @@ public class MainActivity extends AppCompatActivity {
                         .onPositive(new MaterialDialog.SingleButtonCallback() {
                             @Override
                             public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-
-                                Map<String, String> logEvents = new HashMap<>();
-                                logEvents.put("Sort", "Select Sort Method = " + sortMethod);
-                                Analytics.trackEvent(TAG, logEvents);
 
                                 updateUI(false, null);
                             }
@@ -1296,38 +1304,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    @Override
-    public void onBackPressed() {
-        if (mDrawer != null && mDrawer.isDrawerOpen()) {
-            mDrawer.closeDrawer();
-        } else {
-            if (defaultSharedPreferences != null) {
-                int startTimes = defaultSharedPreferences.getInt("launchTimes", 1);
-                Log.i(TAG, "startTimes = " + startTimes);
-                defaultSharedPreferences.edit().putInt("launchTimes", startTimes + 1).apply();
-                boolean muteRatings = defaultSharedPreferences.getBoolean("muteRatings", false);
-                boolean isRated = defaultSharedPreferences.getBoolean("isRated", false);
-                Log.i(TAG, "rating info muteRatings = " + muteRatings + ", isRated = " + isRated);
-                if (!muteRatings &&
-                        !isRated &&
-                        startTimes % getResources().getInteger(R.integer.rating_after_start_times) == 0 &&
-                        mBooks.size() > getResources().getInteger(R.integer.rating_if_books_more_than)) {
-                    // show ratings dialog
-                    showRatingDialog();
-                } else {
-                    super.onBackPressed();
-                }
-            } else {
-                super.onBackPressed();
-            }
-        }
-    }
-
     private void showRatingDialog() {
-        Map<String, String> logEvents = new HashMap<>();
-        logEvents.put("Rating", "Rating Dialog show");
-        Analytics.trackEvent(TAG, logEvents);
-
         new MaterialDialog.Builder(this)
                 .title(R.string.rating_dialog_title)
                 .content(R.string.rating_dialog_content)
@@ -1339,24 +1316,14 @@ public class MainActivity extends AppCompatActivity {
                         Intent i = new Intent(Intent.ACTION_VIEW);
                         i.setData(Uri.parse("market://details?id=com.smartjinyu.mybookshelf"));
                         startActivity(i);
-
-                        logEvents.clear();
-                        logEvents.put("Rating", "Rating Dialog Go to Store");
-                        Analytics.trackEvent(TAG, logEvents);
-
-                        MainActivity.super.onBackPressed();
+                        finish();
                     }
                 })
                 .negativeText(android.R.string.cancel)
                 .onNegative(new MaterialDialog.SingleButtonCallback() {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-
-                        logEvents.clear();
-                        logEvents.put("Rating", "Rating Dialog Cancel");
-                        Analytics.trackEvent(TAG, logEvents);
-
-                        MainActivity.super.onBackPressed();
+                        finish();
                     }
                 })
                 .neutralText(R.string.rating_dialog_neutral)
@@ -1364,12 +1331,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
                         defaultSharedPreferences.edit().putBoolean("muteRatings", true).apply();
-
-                        logEvents.clear();
-                        logEvents.put("Rating", "Mute");
-                        Analytics.trackEvent(TAG, logEvents);
-
-                        MainActivity.super.onBackPressed();
+                        finish();
                     }
                 })
                 .canceledOnTouchOutside(false)
