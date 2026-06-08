@@ -5,17 +5,19 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.core.content.ContextCompat;
-import androidx.viewpager.widget.ViewPager;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
+import androidx.viewpager2.widget.ViewPager2;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -46,7 +48,7 @@ public class BatchAddActivity extends AppCompatActivity {
     private static final int CAMERA_PERMISSION = 1;
     public static TabLayout tabLayout;
 
-    FragmentPagerAdapter adapter;
+    FragmentStateAdapter adapter;
 
     public static Integer[] selectedServices;
     public static int indexOfServiceTested;
@@ -80,11 +82,17 @@ public class BatchAddActivity extends AppCompatActivity {
         }
 
 
-        ViewPager viewPager = (ViewPager) findViewById(R.id.batch_add_view_pager);
-        adapter = new PagerAdapter(getSupportFragmentManager());
+        ViewPager2 viewPager = findViewById(R.id.batch_add_view_pager);
+        adapter = new PagerAdapter();
         viewPager.setAdapter(adapter);
-        tabLayout = (TabLayout) findViewById(R.id.batch_add_tab_layout);
-        tabLayout.setupWithViewPager(viewPager);
+        tabLayout = findViewById(R.id.batch_add_tab_layout);
+        new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
+            if (position == 0) {
+                tab.setText(getString(R.string.batch_add_tab_title_0));
+            } else {
+                tab.setText(String.format(getString(R.string.batch_add_tab_title_1), mBooks.size()));
+            }
+        }).attach();
 
         Toolbar mToolbar = (Toolbar) findViewById(R.id.batch_add_toolbar);
         mToolbar.setTitle(R.string.batch_add_title);
@@ -108,6 +116,12 @@ public class BatchAddActivity extends AppCompatActivity {
             selectedServices = new Integer[]{0, 1, 2}; //three webServices
         }
 
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                dialogBeforeDiscard();
+            }
+        });
     }
 
     @Override
@@ -288,39 +302,24 @@ public class BatchAddActivity extends AppCompatActivity {
     }
 
 
-    public class PagerAdapter extends FragmentPagerAdapter {
-        final int PAGE_COUNT = 2;
-
-        public PagerAdapter(FragmentManager fm) {
-            super(fm);
+    public class PagerAdapter extends FragmentStateAdapter {
+        public PagerAdapter() {
+            super(BatchAddActivity.this);
         }
 
+        @NonNull
         @Override
-        public int getCount() {
-            return PAGE_COUNT;
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            switch (position) {
-                case 0:
-                    return new BatchScanFragment();
-                case 1:
-                    return new BatchListFragment();
-                default:
-                    return null;
+        public Fragment createFragment(int position) {
+            if (position == 0) {
+                return new BatchScanFragment();
+            } else {
+                return new BatchListFragment();
             }
         }
 
         @Override
-        public CharSequence getPageTitle(int position) {
-            switch (position) {
-                case 0:
-                    return getString(R.string.batch_add_tab_title_0);
-                case 1:
-                    return String.format(getString(R.string.batch_add_tab_title_1), mBooks.size());
-            }
-            return null;
+        public int getItemCount() {
+            return 2;
         }
     }
 
@@ -409,11 +408,6 @@ public class BatchAddActivity extends AppCompatActivity {
                 .negativeText(android.R.string.cancel)
                 .show();
 
-    }
-
-    @Override
-    public void onBackPressed() {
-        dialogBeforeDiscard();
     }
 
     private void dialogBeforeDiscard() {

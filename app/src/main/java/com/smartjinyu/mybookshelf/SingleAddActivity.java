@@ -11,7 +11,6 @@ import android.preference.PreferenceManager;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.core.view.MenuItemCompat;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -114,13 +113,13 @@ public class SingleAddActivity extends AppCompatActivity implements ZXingScanner
             menuItem.setIcon(R.drawable.ic_flash_off);
         }
 
-        MenuItemCompat.setShowAsAction(menuItem, MenuItem.SHOW_AS_ACTION_IF_ROOM);
+        menuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
 
         menuItem = menu.add(Menu.NONE, R.id.menu_simple_add_manually, 0, R.string.menu_single_add_manually);
-        MenuItemCompat.setShowAsAction(menuItem, MenuItemCompat.SHOW_AS_ACTION_NEVER);
+        menuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
 
         menuItem = menu.add(Menu.NONE, R.id.menu_simple_add_totally_manual, 1, R.string.menu_single_add_totally_manually);
-        MenuItemCompat.setShowAsAction(menuItem, MenuItemCompat.SHOW_AS_ACTION_NEVER);
+        menuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
         // add a book without isbn directly
 
         return super.onCreateOptionsMenu(menu);

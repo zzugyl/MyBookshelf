@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.core.view.MenuItemCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -65,7 +64,7 @@ public class BatchScanFragment extends Fragment implements ZXingScannerView.Resu
             menuItem = menu.add(Menu.NONE, R.id.menu_batch_add_flash, 0, R.string.menu_single_add_flash_off);
             menuItem.setIcon(R.drawable.ic_flash_off);
         }
-        MenuItemCompat.setShowAsAction(menuItem, MenuItem.SHOW_AS_ACTION_IF_ROOM);
+        menuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
         super.onCreateOptionsMenu(menu, inflater);
     }
 
