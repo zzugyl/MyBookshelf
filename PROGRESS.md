@@ -103,6 +103,7 @@
 | ff7b15c | 完成中优先级废弃 API 迁移 |
 | 162718f | 移除 App Center SDK，versionCode 改用 git commit 次数 |
 | e8838ca | 清理死代码和过期注释 |
+| a589a94 | 清理残留死代码，移除 compressor 模块 RxJava 依赖 |
 
 ## 待处理
 
