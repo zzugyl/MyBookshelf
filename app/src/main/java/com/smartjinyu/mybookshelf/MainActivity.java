@@ -25,6 +25,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import android.util.Log;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
@@ -49,16 +51,18 @@ import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
-import com.mikepenz.materialdrawer.AccountHeader;
-import com.mikepenz.materialdrawer.AccountHeaderBuilder;
-import com.mikepenz.materialdrawer.Drawer;
-import com.mikepenz.materialdrawer.DrawerBuilder;
+import com.mikepenz.fastadapter.FastAdapter;
+import com.mikepenz.materialdrawer.holder.ImageHolder;
+import com.mikepenz.materialdrawer.holder.StringHolder;
 import com.mikepenz.materialdrawer.model.DividerDrawerItem;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.SectionDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IProfile;
+import com.mikepenz.materialdrawer.widget.AccountHeaderView;
+import com.mikepenz.materialdrawer.util.MaterialDrawerSliderViewExtensionsKt;
+import com.mikepenz.materialdrawer.widget.MaterialDrawerSliderView;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -76,8 +80,9 @@ public class MainActivity extends AppCompatActivity {
     private static final String SORT_METHOD = "SORT_METHOD";
 
     private Toolbar mToolbar;
-    private Drawer mDrawer;
-    private AccountHeader mAccountHeader;
+    private DrawerLayout mDrawerLayout;
+    private MaterialDrawerSliderView mSlider;
+    private AccountHeaderView mAccountHeader;
     private Spinner mSpinner;
     private RecyclerView mRecyclerView;
     private FloatingActionMenu mActionAddButton;
@@ -133,8 +138,8 @@ public class MainActivity extends AppCompatActivity {
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                if (mDrawer != null && mDrawer.isDrawerOpen()) {
-                    mDrawer.closeDrawer();
+                if (mDrawerLayout != null && mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
+                    mDrawerLayout.closeDrawer(GravityCompat.START);
                 } else {
                     if (defaultSharedPreferences != null) {
                         int startTimes = defaultSharedPreferences.getInt("launchTimes", 1);
@@ -312,8 +317,8 @@ public class MainActivity extends AppCompatActivity {
                 }
                 break;
             case R.id.menu_main_rename_label:
-                if (mDrawer != null) {
-                    long drawerSelection = mDrawer.getCurrentSelection();
+                if (mSlider != null) {
+                    long drawerSelection = getDrawerSelection();
                     List<Label> labels = LabelLab.get(MainActivity.this).getLabels();
                     if (drawerSelection >= 10 && drawerSelection < 10 + labels.size()) {
                         // make sure the selection label is valid
@@ -335,7 +340,7 @@ public class MainActivity extends AppCompatActivity {
                                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
                                         String newName = dialog.getInputEditText().getText().toString();
                                         LabelLab.get(MainActivity.this).renameLabel(selectedLB.getId(), newName);
-                                        setDrawer(mDrawer.getCurrentSelection());
+                                        setDrawer(getDrawerSelection());
                                     }
                                 })
                                 .negativeText(android.R.string.cancel)
@@ -351,8 +356,8 @@ public class MainActivity extends AppCompatActivity {
                 }
                 break;
             case R.id.menu_main_delete_label:
-                if (mDrawer != null) {
-                    long drawerSelection = mDrawer.getCurrentSelection();
+                if (mSlider != null) {
+                    long drawerSelection = getDrawerSelection();
                     List<Label> labels = LabelLab.get(MainActivity.this).getLabels();
                     if (drawerSelection >= 10 && drawerSelection < 10 + labels.size()) {
                         // make sure the selection label is valid
@@ -416,155 +421,180 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    private long getDrawerSelection() {
+        if (mSlider == null) return -1;
+        FastAdapter<IDrawerItem<?>> adapter = mSlider._adapter;
+        for (int i = 0; i < adapter.getItemCount(); i++) {
+            IDrawerItem<?> item = adapter.getItem(i);
+            if (item != null && item.isSelected()) {
+                return item.getIdentifier();
+            }
+        }
+        return -1;
+    }
+
+    private void setDrawerSelection(long identifier) {
+        if (mSlider == null) return;
+        FastAdapter<IDrawerItem<?>> adapter = mSlider._adapter;
+        for (int i = 0; i < adapter.getItemCount(); i++) {
+            IDrawerItem<?> item = adapter.getItem(i);
+            if (item != null && item.getIdentifier() == identifier) {
+                item.setSelected(true);
+                adapter.notifyItemChanged(i);
+                break;
+            }
+        }
+    }
+
     private void setDrawer(long selectionIdentifier) {
         final List<Label> labels = LabelLab.get(this).getLabels();
-        final IProfile profile = new ProfileDrawerItem()
-                .withName(getResources().getString(R.string.app_name))
-                .withIcon(R.mipmap.ic_launcher_circle)
-                .withEmail(getResources().getString(R.string.drawer_header_email));
 
-        mAccountHeader = new AccountHeaderBuilder()
-                .withActivity(this)
-                //.withCompactStyle(true)
-                .withHeaderBackground(R.drawable.header)
-                .withSelectionListEnabledForSingleProfile(false)
-                .addProfiles(profile)
-                //.withSavedInstance(savedInstanceState)
-                .build();
-
-        mDrawer = new DrawerBuilder()
-                .withActivity(this)
-                .withToolbar(mToolbar)
-                .withAccountHeader(mAccountHeader)
-                .addDrawerItems(
-                        new PrimaryDrawerItem()
-                                .withName(R.string.drawer_item_books)
-                                .withIcon(R.drawable.ic_bookshelf)
-                                .withIdentifier(1)
-                                .withSelectable(true),
-//                        new PrimaryDrawerItem()
-//                                .withName(R.string.drawer_item_search)
-//                                .withIcon(R.drawable.ic_search)
-//                                .withIdentifier(2)
-//                                .withSelectable(false),
-                        new SectionDrawerItem()
-                                .withName(R.string.drawer_section_label),
-                        new PrimaryDrawerItem()
-                                .withName(R.string.drawer_item_create_new_label)
-                                .withIcon(R.drawable.ic_add)
-                                .withIdentifier(3)
-                                .withSelectable(false),
-                        new DividerDrawerItem(),
-                        new PrimaryDrawerItem()
-                                .withName(R.string.drawer_item_settings)
-                                .withIcon(R.drawable.ic_settings)
-                                .withIdentifier(4)
-                                .withSelectable(false),
-                        new PrimaryDrawerItem()
-                                .withName(R.string.drawer_item_about)
-                                .withIcon(R.drawable.ic_about)
-                                .withIdentifier(5)
-                                .withSelectable(false)
-                )
-                .withOnDrawerItemClickListener((view, position, drawerItem) -> {
-                    //check if the drawerItem is set.
-                    //there are different reasons for the drawerItem to be null
-                    //--> click on the header
-                    //--> click on the footer
-                    //those items don't contain a drawerItem
-
-                    if (drawerItem != null) {
-                        Log.i(TAG, "Select drawer item at position " + position);
-                        // Identifier between 10 and 9 + labels.size() are labels
-                        if (mActionMode != null) {
-                            mActionMode.finish();
-                            // study drawerLayout and try to lock the drawer in the future
-                        }
-                        if (drawerItem.getIdentifier() == 1) {
-                            // nothing need to do with searchView
-                            updateUI(true, null);
-                            if(mSpinner != null){
-                                setBookShelfSpinner(mSpinner.getSelectedItemPosition());
-                            }
-
-                        } else if (drawerItem.getIdentifier() == 3) {
-                            new MaterialDialog.Builder(MainActivity.this)
-                                    .title(R.string.label_add_new_dialog_title)
-                                    .inputRange(1, getResources().getInteger(R.integer.label_name_max_length))
-                                    .input(
-                                            R.string.label_add_new_dialog_edit_text,
-                                            0,
-                                            new MaterialDialog.InputCallback() {
-                                                @Override
-                                                public void onInput(@NonNull MaterialDialog dialog1, CharSequence input) {
-                                                    // nothing to do here
-                                                }
-                                            })
-                                    .onPositive(new MaterialDialog.SingleButtonCallback() {
-                                        @Override
-                                        public void onClick(@NonNull MaterialDialog inputDialog, @NonNull DialogAction which) {
-                                            Label labelToAdd = new Label();
-                                            labelToAdd.setTitle(inputDialog.getInputEditText().getText().toString());
-                                            LabelLab.get(MainActivity.this).addLabel(labelToAdd);
-                                            Log.i(TAG, "New label created " + labelToAdd.getTitle());
-                                            setDrawer(mDrawer.getCurrentSelection());
-                                        }
-                                    })
-                                    .negativeText(android.R.string.cancel)
-                                    .onNegative(new MaterialDialog.SingleButtonCallback() {
-                                        @Override
-                                        public void onClick(@NonNull MaterialDialog inputDialog, @NonNull DialogAction which) {
-                                            inputDialog.dismiss();
-                                        }
-                                    })
-                                    .show();
-                        } else if (drawerItem.getIdentifier() >= 10 && drawerItem.getIdentifier() < 10 + labels.size()) {
-                            if(searchView != null && !searchView.isIconified()){
-                                searchView.setIconified(true);
-                            }
-                            updateUI(true, null);
-                            if(mSpinner != null){
-                                setBookShelfSpinner(mSpinner.getSelectedItemPosition());
-                            }
-                        } else if (drawerItem.getIdentifier() == 2) {
-                            if(searchItem != null){
-                                searchItem.expandActionView();
-                            }
-                            mDrawer.setSelection(1);
-                            updateUI(true, null);
-                        } else if (drawerItem.getIdentifier() == 4) {
-                            Intent i = new Intent(MainActivity.this, SettingsActivity.class);
-                            startActivity(i);
-                        } else if (drawerItem.getIdentifier() == 5) {
-                            Intent i = new Intent(MainActivity.this, AboutActivity.class);
-                            startActivity(i);
-                        } else if (drawerItem.getIdentifier() == 6) {
-                        }
-                    }
-                    return false;
-                })
-                .build();
-
-        //.withSavedInstance(savedInstanceState) do not use this
-        // because we will add items after .build()
-
-        /**
-         * About position
-         * begin at 1
-         * divider\section also counts in
-         */
-        for (int i = 0; i < labels.size(); i++) {
-            // add labels
-            IDrawerItem drawerItem = new PrimaryDrawerItem()
-                    .withName(labels.get(i).getTitle())
-                    .withIcon(R.drawable.ic_label)
-                    .withIdentifier(i + 10)// identifier begin from 10
-                    .withSelectable(true);
-            mDrawer.addItemAtPosition(drawerItem, i + 3); // i + 3 if there is a search item
+        // Initialize DrawerLayout reference
+        if (mDrawerLayout == null) {
+            mDrawerLayout = findViewById(R.id.drawer_layout);
         }
 
+        // Initialize slider reference
+        if (mSlider == null) {
+            mSlider = findViewById(R.id.slider);
+        }
+
+        // Build account header
+        final IProfile profile = new ProfileDrawerItem();
+        profile.setName(new StringHolder(getResources().getString(R.string.app_name)));
+        profile.setIcon(new ImageHolder(R.mipmap.ic_launcher_circle));
+        profile.setDescription(new StringHolder(getResources().getString(R.string.drawer_header_email)));
+
+        mAccountHeader = new AccountHeaderView(this, null, 0, false);
+        mAccountHeader.addProfiles(profile);
+        mAccountHeader.setHeaderBackground(new ImageHolder(R.drawable.header));
+        mAccountHeader.setSelectionListEnabledForSingleProfile(false);
+        mSlider.setAccountHeader(mAccountHeader);
+
+        // Build drawer items
+        List<IDrawerItem<?>> items = new ArrayList<>();
+
+        PrimaryDrawerItem booksItem = new PrimaryDrawerItem();
+        booksItem.setName(new StringHolder(getString(R.string.drawer_item_books)));
+        booksItem.setIcon(new ImageHolder(R.drawable.ic_bookshelf));
+        booksItem.setIdentifier(1);
+        booksItem.setSelectable(true);
+        items.add(booksItem);
+
+        SectionDrawerItem sectionItem = new SectionDrawerItem();
+        sectionItem.setName(new StringHolder(getString(R.string.drawer_section_label)));
+        items.add(sectionItem);
+
+        PrimaryDrawerItem createLabelItem = new PrimaryDrawerItem();
+        createLabelItem.setName(new StringHolder(getString(R.string.drawer_item_create_new_label)));
+        createLabelItem.setIcon(new ImageHolder(R.drawable.ic_add));
+        createLabelItem.setIdentifier(3);
+        createLabelItem.setSelectable(false);
+        items.add(createLabelItem);
+
+        items.add(new DividerDrawerItem());
+
+        PrimaryDrawerItem settingsItem = new PrimaryDrawerItem();
+        settingsItem.setName(new StringHolder(getString(R.string.drawer_item_settings)));
+        settingsItem.setIcon(new ImageHolder(R.drawable.ic_settings));
+        settingsItem.setIdentifier(4);
+        settingsItem.setSelectable(false);
+        items.add(settingsItem);
+
+        PrimaryDrawerItem aboutItem = new PrimaryDrawerItem();
+        aboutItem.setName(new StringHolder(getString(R.string.drawer_item_about)));
+        aboutItem.setIcon(new ImageHolder(R.drawable.ic_about));
+        aboutItem.setIdentifier(5);
+        aboutItem.setSelectable(false);
+        items.add(aboutItem);
+
+        // Add label items
+        for (int i = 0; i < labels.size(); i++) {
+            PrimaryDrawerItem labelItem = new PrimaryDrawerItem();
+            labelItem.setName(new StringHolder(labels.get(i).getTitle()));
+            labelItem.setIcon(new ImageHolder(R.drawable.ic_label));
+            labelItem.setIdentifier(i + 10);
+            labelItem.setSelectable(true);
+            items.add(labelItem);
+        }
+
+        MaterialDrawerSliderViewExtensionsKt.setItems(mSlider, items.toArray(new IDrawerItem[0]));
+
+        // Set click listener
+        mSlider.setOnDrawerItemClickListener(new kotlin.jvm.functions.Function3<View, IDrawerItem<?>, Integer, Boolean>() {
+            @Override
+            public Boolean invoke(View view, IDrawerItem<?> drawerItem, Integer position) {
+                        if (drawerItem != null) {
+                            Log.i(TAG, "Select drawer item at position " + position);
+                            if (mActionMode != null) {
+                                mActionMode.finish();
+                            }
+                            long id = drawerItem.getIdentifier();
+                            if (id == 1) {
+                                updateUI(true, null);
+                                if (mSpinner != null) {
+                                    setBookShelfSpinner(mSpinner.getSelectedItemPosition());
+                                }
+                            } else if (id == 3) {
+                                new MaterialDialog.Builder(MainActivity.this)
+                                        .title(R.string.label_add_new_dialog_title)
+                                        .inputRange(1, getResources().getInteger(R.integer.label_name_max_length))
+                                        .input(
+                                                R.string.label_add_new_dialog_edit_text,
+                                                0,
+                                                new MaterialDialog.InputCallback() {
+                                                    @Override
+                                                    public void onInput(@NonNull MaterialDialog dialog1, CharSequence input) {
+                                                        // nothing to do here
+                                                    }
+                                                })
+                                        .onPositive(new MaterialDialog.SingleButtonCallback() {
+                                            @Override
+                                            public void onClick(@NonNull MaterialDialog inputDialog, @NonNull DialogAction which) {
+                                                Label labelToAdd = new Label();
+                                                labelToAdd.setTitle(inputDialog.getInputEditText().getText().toString());
+                                                LabelLab.get(MainActivity.this).addLabel(labelToAdd);
+                                                Log.i(TAG, "New label created " + labelToAdd.getTitle());
+                                                setDrawer(getDrawerSelection());
+                                            }
+                                        })
+                                        .negativeText(android.R.string.cancel)
+                                        .onNegative(new MaterialDialog.SingleButtonCallback() {
+                                            @Override
+                                            public void onClick(@NonNull MaterialDialog inputDialog, @NonNull DialogAction which) {
+                                                inputDialog.dismiss();
+                                            }
+                                        })
+                                        .show();
+                            } else if (id >= 10 && id < 10 + labels.size()) {
+                                if (searchView != null && !searchView.isIconified()) {
+                                    searchView.setIconified(true);
+                                }
+                                updateUI(true, null);
+                                if (mSpinner != null) {
+                                    setBookShelfSpinner(mSpinner.getSelectedItemPosition());
+                                }
+                            } else if (id == 2) {
+                                if (searchItem != null) {
+                                    searchItem.expandActionView();
+                                }
+                                setDrawerSelection(1);
+                                updateUI(true, null);
+                            } else if (id == 4) {
+                                Intent i = new Intent(MainActivity.this, SettingsActivity.class);
+                                startActivity(i);
+                            } else if (id == 5) {
+                                Intent i = new Intent(MainActivity.this, AboutActivity.class);
+                                startActivity(i);
+                            }
+                        }
+                        mDrawerLayout.closeDrawer(GravityCompat.START);
+                        return true;
+                    }
+                });
+
         if (selectionIdentifier != -1) {
-            mDrawer.setSelection(selectionIdentifier);
+            setDrawerSelection(selectionIdentifier);
         }
     }
 
@@ -873,8 +903,8 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        if (mDrawer != null) {
-            long drawerSelection = mDrawer.getCurrentSelection();
+        if (mSlider != null) {
+            long drawerSelection = getDrawerSelection();
             if (drawerSelection < 10 || drawerSelection >= 10 + labels.size()) {
                 // not select label
                 showLabelMenuItem = false;
@@ -950,8 +980,8 @@ public class MainActivity extends AppCompatActivity {
             Log.d(TAG, "onResume, SearchView open = " + !searchView.isIconified());
         }
 
-        if (mDrawer != null) {
-            setDrawer(mDrawer.getCurrentSelection());
+        if (mSlider != null) {
+            setDrawer(getDrawerSelection());
         }
 
         if(searchView != null && !searchView.isIconified()){
@@ -1098,8 +1128,8 @@ public class MainActivity extends AppCompatActivity {
                                     if (mActionMode != null) {
                                         mActionMode.finish();
                                     }
-                                    if (mDrawer != null) {
-                                        setDrawer(mDrawer.getCurrentSelection());
+                                    if (mSlider != null) {
+                                        setDrawer(getDrawerSelection());
                                     }
                                     updateUI(true, null);
                                     dialog.dismiss();
@@ -1294,8 +1324,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
-        if (mDrawer != null) {
-            savedInstanceState.putLong(drawerSelected, mDrawer.getCurrentSelection());
+        if (mSlider != null) {
+            savedInstanceState.putLong(drawerSelected, getDrawerSelection());
         }
     }
 

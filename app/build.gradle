@@ -90,7 +90,7 @@ dependencies {
     implementation 'com.afollestad.material-dialogs:core:0.9.6.0' // newest 3.3.0 // original 0.9.6.0
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'com.klinkerapps:sliding-activity:1.5.2'
-    implementation 'com.mikepenz:materialdrawer:6.1.2'
+    implementation 'com.mikepenz:materialdrawer:9.0.2'
     implementation 'com.github.promeg:tinypinyin:2.0.3'
     implementation project(':compressor')
     implementation('com.squareup.retrofit2:converter-simplexml:2.9.0') {
