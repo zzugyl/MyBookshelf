@@ -104,6 +104,7 @@
 | 162718f | 移除 App Center SDK，versionCode 改用 git commit 次数 |
 | e8838ca | 清理死代码和过期注释 |
 | a589a94 | 清理残留死代码，移除 compressor 模块 RxJava 依赖 |
+| 6a80319 | 升级 Material Components 1.2.1 → 1.12.0 |
 
 ## 待处理
 
@@ -128,6 +129,7 @@
 - [x] 清理注释掉的死代码和过期 TODO/FIXME
 - [x] 清理残留死代码（SingleAddActivity、CoverDownloader）
 - [x] 移除 compressor 模块 RxJava 依赖（未被调用，直接移除）
+- [x] 升级 Material Components 1.2.1 → 1.12.0
 
 ### API 服务
 - [ ] 修复豆瓣 API 代理服务（47.108.87.209:9268）
