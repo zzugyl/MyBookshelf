@@ -59,9 +59,37 @@
 - PagerAdapter 改为 FragmentStateAdapter
 - TabLayout 使用 TabLayoutMediator
 
+### 11. 移除 App Center SDK
+- 移除 appcenter-analytics、appcenter-crashes 依赖
+- 移除所有 Analytics.trackEvent() 调用及相关代码
+
+### 12. versionCode 改用 git commit 次数
+- 新增 `getGitCommitCount()` 函数
+- versionCode 从硬编码改为 `git rev-list --count HEAD`
+
+### 13. 清理死代码和过期注释
+- 移除 build.gradle 中注释掉的依赖
+- 移除各文件中注释掉的代码和过期 TODO/FIXME
+
+### 14. 清理残留死代码
+- SingleAddActivity：移除注释掉的 Handler.postDelayed 和 resumeCameraPreview
+- CoverDownloader：移除注释掉的 Toast 和未完成的 //todo
+
+### 15. 移除 compressor 模块 RxJava 依赖
+- compressToFileAsObservable / compressToBitmapAsObservable 未被 app 调用
+- 移除两个 Observable 方法和 rx.Observable / rx.functions.Func0 导入
+- 移除 build.gradle 中 io.reactivex:rxjava:1.3.0 依赖
+
 ## 当前版本
-- versionCode: 12
 - versionName: "2.0"
+- versionCode: 动态获取（git commit 次数）
+
+## 签名配置
+- Keystore 文件: `app/release.keystore`
+- Key Alias: `mybookshelf`
+- Store Password: `android`
+- Key Password: `android`
+- APK 输出: `app/build/outputs/apk/release/app-release.apk`
 
 ## Git 提交记录
 | Commit | 说明 |
@@ -73,6 +101,8 @@
 | d5949c1 | 迁移 PreferenceFragment → PreferenceFragmentCompat |
 | f54ec4d | SettingsFragment: startActivityForResult → ActivityResultLauncher |
 | ff7b15c | 完成中优先级废弃 API 迁移 |
+| 162718f | 移除 App Center SDK，versionCode 改用 git commit 次数 |
+| e8838ca | 清理死代码和过期注释 |
 
 ## 待处理
 
@@ -91,10 +121,12 @@
 ### 低优先级
 - [ ] 替换已停维库：clans FAB、barcodescanner
 - [ ] 升级过旧库版本：material-dialogs 0.9.6 → 3.3.0、materialdrawer 6.1.2 → 9.x、material 1.2.1 → 1.12.x
-- [ ] App Center SDK 退役处理（微软已宣布关闭）
+- [x] App Center SDK 退役处理（已移除）
 - [ ] RxJava 1.x → 3.x（compressor 模块）
 - [ ] Gradle 语法现代化（plugins DSL、移除 allprojects/buildscript）
-- [ ] 清理注释掉的死代码和过期 TODO/FIXME
+- [x] 清理注释掉的死代码和过期 TODO/FIXME
+- [x] 清理残留死代码（SingleAddActivity、CoverDownloader）
+- [x] 移除 compressor 模块 RxJava 依赖（未被调用，直接移除）
 
 ### API 服务
 - [ ] 修复豆瓣 API 代理服务（47.108.87.209:9268）

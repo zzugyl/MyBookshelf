@@ -271,24 +271,9 @@ public class SingleAddActivity extends AppCompatActivity implements ZXingScanner
     public void handleResult(Result rawResult) {
         Log.i(TAG, "ScanResult Contents = " + rawResult.getText() + ", Format = " + rawResult.getBarcodeFormat().toString());
         addBook(rawResult.getText());
-
-
-        // Note:
-        // * Wait 2 seconds to resume the preview.
-        // * On older devices continuously stopping and resuming camera preview can result in freezing the app.
-        /*
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                mScannerView.resumeCameraPreview(SingleAddActivity.this);
-            }
-        }, 2000);
-        */
     }
 
     public void resumeCamera() {
-        //mScannerView.resumeCameraPreview(SingleAddActivity.this);
         mScannerView.setResultHandler(this);
         mScannerView.setAutoFocus(true);
         mScannerView.setFlash(mFlash);

@@ -6,9 +6,6 @@ import android.net.Uri;
 
 import java.io.File;
 
-import rx.Observable;
-import rx.functions.Func0;
-
 /**
  * Created on : June 18, 2016
  * Author     : zetbaitsu
@@ -55,24 +52,6 @@ public class Compressor {
 
     public Bitmap compressToBitmap(File file) {
         return ImageUtil.getScaledBitmap(context, Uri.fromFile(file), maxWidth, maxHeight, bitmapConfig);
-    }
-
-    public Observable<File> compressToFileAsObservable(final File file) {
-        return Observable.defer(new Func0<Observable<File>>() {
-            @Override
-            public Observable<File> call() {
-                return Observable.just(compressToFile(file));
-            }
-        });
-    }
-
-    public Observable<Bitmap> compressToBitmapAsObservable(final File file) {
-        return Observable.defer(new Func0<Observable<Bitmap>>() {
-            @Override
-            public Observable<Bitmap> call() {
-                return Observable.just(compressToBitmap(file));
-            }
-        });
     }
 
     public static class Builder {

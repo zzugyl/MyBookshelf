@@ -73,8 +73,6 @@ public class CoverDownloader {
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
                 Log.e(TAG, "Fail to download image response," + t.toString());
-                // Toast.makeText(mContext,"",Toast.LENGTH_LONG).show();
-                //todo
             }
         });
 
