@@ -17,7 +17,6 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 
 import java.io.File;
@@ -56,33 +55,24 @@ public class BatchListFragment extends Fragment {
 
             @Override
             public void onItemLongClick(View view, final int position) {
-                new MaterialDialog.Builder(getActivity())
-                        .title(R.string.batch_add_delete_book_dialog_title)
-                        .content(R.string.batch_add_delete_book_dialog_content)
-                        .positiveText(R.string.batch_add_delete_book_dialog_positive)
-                        .onPositive(new MaterialDialog.SingleButtonCallback() {
-                            @Override
-                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                if (BatchAddActivity.mBooks.get(position).isHasCover()) {
-                                    File file = new File(getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/" + BatchAddActivity.mBooks.get(position).getCoverPhotoFileName());
-                                    boolean succeeded = file.delete();
-                                    Log.i(TAG, "Remove cover result = " + succeeded);
-                                }
-                                BatchAddActivity.mBooks.remove(position);
-                                mRecyclerViewAdapter.notifyDataSetChanged();
-                                BatchAddActivity.tabLayout.getTabAt(1).
-                                        setText(String.format(getString(R.string.batch_add_tab_title_1),
-                                                BatchAddActivity.mBooks.size()));
+                DialogHelper.show(getActivity(),
+                        R.string.batch_add_delete_book_dialog_title,
+                        R.string.batch_add_delete_book_dialog_content,
+                        R.string.batch_add_delete_book_dialog_positive,
+                        android.R.string.cancel,
+                        () -> {
+                            if (BatchAddActivity.mBooks.get(position).isHasCover()) {
+                                File file = new File(getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/" + BatchAddActivity.mBooks.get(position).getCoverPhotoFileName());
+                                boolean succeeded = file.delete();
+                                Log.i(TAG, "Remove cover result = " + succeeded);
                             }
-                        })
-                        .negativeText(android.R.string.cancel)
-                        .onNeutral(new MaterialDialog.SingleButtonCallback() {
-                            @Override
-                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                dialog.dismiss();
-                            }
-                        })
-                        .show();
+                            BatchAddActivity.mBooks.remove(position);
+                            mRecyclerViewAdapter.notifyDataSetChanged();
+                            BatchAddActivity.tabLayout.getTabAt(1).
+                                    setText(String.format(getString(R.string.batch_add_tab_title_1),
+                                            BatchAddActivity.mBooks.size()));
+                        },
+                        null);
             }
         }));
     }

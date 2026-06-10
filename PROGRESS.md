@@ -105,6 +105,7 @@
 | e8838ca | 清理死代码和过期注释 |
 | a589a94 | 清理残留死代码，移除 compressor 模块 RxJava 依赖 |
 | 6a80319 | 升级 Material Components 1.2.1 → 1.12.0 |
+| be88086 | 升级 MaterialDrawer 6.1.2 → 9.0.2 |
 
 ## 待处理
 
@@ -122,14 +123,17 @@
 
 ### 低优先级
 - [ ] 替换已停维库：clans FAB、barcodescanner
-- [ ] 升级过旧库版本：material-dialogs 0.9.6 → 3.3.0、materialdrawer 6.1.2 → 9.x、material 1.2.1 → 1.12.x
+- [x] 升级 Material Components 1.2.1 → 1.12.0
+- [x] 升级 MaterialDrawer 6.1.2 → 9.0.2
+- [~] 升级 material-dialogs 0.9.6 → 3.3.0（进行中）
+  - [x] 新建 DialogHelper 工具类封装 3.x API
+  - [x] 迁移 UpdateCheck、BatchListFragment、BatchScanFragment、SingleAddActivity
+  - [ ] 迁移 SettingsFragment、BatchAddActivity、BookEditActivity、MainActivity
 - [x] App Center SDK 退役处理（已移除）
-- [ ] RxJava 1.x → 3.x（compressor 模块）
+- [x] 移除 compressor 模块 RxJava 依赖（未被调用，直接移除）
 - [ ] Gradle 语法现代化（plugins DSL、移除 allprojects/buildscript）
 - [x] 清理注释掉的死代码和过期 TODO/FIXME
 - [x] 清理残留死代码（SingleAddActivity、CoverDownloader）
-- [x] 移除 compressor 模块 RxJava 依赖（未被调用，直接移除）
-- [x] 升级 Material Components 1.2.1 → 1.12.0
 
 ### API 服务
 - [ ] 修复豆瓣 API 代理服务（47.108.87.209:9268）
@@ -138,5 +142,5 @@
 
 ## 已知问题
 - 豆瓣 API 代理服务故障，暂时不可用
-- SettingsFragment 使用废弃的 android.preference.PreferenceFragment，暂未迁移
 - 项目无测试用例，无 CI/CD
+- material-dialogs 3.3.0 迁移未完成，当前编译不过（4 个文件待迁移）

@@ -12,7 +12,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.zxing.Result;
 
@@ -106,18 +105,13 @@ public class BatchScanFragment extends Fragment implements ZXingScannerView.Resu
             }
         }
         if (isExist) {//The book is already in the list
-            new MaterialDialog.Builder(getActivity())
-                    .title(R.string.book_duplicate_dialog_title)
-                    .content(R.string.book_duplicate_dialog_content)
-                    .positiveText(R.string.book_duplicate_dialog_positive)
-                    .onPositive(new MaterialDialog.SingleButtonCallback() {
-                        @Override
-                        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                            beginFetcher(isbn);
-                        }
-                    })
-                    .negativeText(android.R.string.cancel)
-                    .show();
+            DialogHelper.show(getActivity(),
+                    R.string.book_duplicate_dialog_title,
+                    R.string.book_duplicate_dialog_content,
+                    R.string.book_duplicate_dialog_positive,
+                    android.R.string.cancel,
+                    () -> beginFetcher(isbn),
+                    null);
         } else {
             beginFetcher(isbn);
         }

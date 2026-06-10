@@ -3,10 +3,8 @@ package com.smartjinyu.mybookshelf;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import androidx.annotation.NonNull;
 import android.util.Log;
 
-import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 
 import retrofit2.Call;
@@ -42,37 +40,28 @@ public class UpdateCheck {
                     int newVersionCode = response.body().getVersion_code();
                     Log.i(TAG, "Newest Version Code is = " + newVersionCode + ", current code is " + BuildConfig.VERSION_CODE);
                     if (newVersionCode > BuildConfig.VERSION_CODE) {
-                        new MaterialDialog.Builder(mContext)
-                                .title(R.string.new_version_find_dialog_title)
-                                .content(String.format(
+                        new MaterialDialog(mContext)
+                                .title(R.string.new_version_find_dialog_title, null)
+                                .message(null, String.format(
                                         mContext.getString(R.string.new_version_find_dialog_content),
-                                        response.body().getVersion_name()))
-                                .positiveText(R.string.new_version_find_dialog_positive)
-                                .onPositive(new MaterialDialog.SingleButtonCallback() {
-                                    @Override
-                                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                        Intent i = new Intent(Intent.ACTION_VIEW);
-                                        i.setData(Uri.parse("market://details?id=com.smartjinyu.mybookshelf"));
-                                        mContext.startActivity(i);
-                                    }
+                                        response.body().getVersion_name()), null)
+                                .positiveButton(R.string.new_version_find_dialog_positive, null, d -> {
+                                    Intent i = new Intent(Intent.ACTION_VIEW);
+                                    i.setData(Uri.parse("market://details?id=com.smartjinyu.mybookshelf"));
+                                    mContext.startActivity(i);
+                                    return kotlin.Unit.INSTANCE;
                                 })
-                                .negativeText(R.string.new_version_find_dialog_negative)
-                                .onNegative(new MaterialDialog.SingleButtonCallback() {
-                                    @Override
-                                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                        Intent i = new Intent(Intent.ACTION_VIEW);
-                                        i.setData(Uri.parse("https://smartjinyu.com/android/2017/02/09/mybookshelf.html"));
-                                        mContext.startActivity(i);
-                                    }
+                                .negativeButton(R.string.new_version_find_dialog_negative, null, d -> {
+                                    Intent i = new Intent(Intent.ACTION_VIEW);
+                                    i.setData(Uri.parse("https://smartjinyu.com/android/2017/02/09/mybookshelf.html"));
+                                    mContext.startActivity(i);
+                                    return kotlin.Unit.INSTANCE;
                                 })
-                                .neutralText(android.R.string.cancel)
-                                .onNeutral(new MaterialDialog.SingleButtonCallback() {
-                                    @Override
-                                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                        dialog.dismiss();
-                                    }
+                                .neutralButton(android.R.string.cancel, null, d -> {
+                                    d.dismiss();
+                                    return kotlin.Unit.INSTANCE;
                                 })
-                                .autoDismiss(false)
+                                .noAutoDismiss()
                                 .show();
 
                     }

@@ -1,7 +1,6 @@
 package com.smartjinyu.mybookshelf;
 
 import android.Manifest;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -21,8 +20,9 @@ import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.afollestad.materialdialogs.actions.DialogActionExtKt;
+import com.afollestad.materialdialogs.WhichButton;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.google.zxing.Result;
@@ -158,37 +158,28 @@ public class SingleAddActivity extends AppCompatActivity implements ZXingScanner
                 break;
             case R.id.menu_simple_add_manually:
                 mScannerView.stopCamera();
-                new MaterialDialog.Builder(this)
-                        .title(R.string.input_isbn_manually_title)
-                        .content(R.string.input_isbn_manually_content)
-                        .positiveText(R.string.input_isbn_manually_positive)
-                        .onPositive(new MaterialDialog.SingleButtonCallback() {
-                            @Override
-                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                addBook(dialog.getInputEditText().getText().toString());
-                            }
+                new MaterialDialog(this)
+                        .title(R.string.input_isbn_manually_title, null)
+                        .message(R.string.input_isbn_manually_content, null, null)
+                        .positiveButton(R.string.input_isbn_manually_positive, null, d -> {
+                            addBook(com.afollestad.materialdialogs.input.DialogInputExtKt.getInputField(d).getText().toString());
+                            return kotlin.Unit.INSTANCE;
                         })
-                        .negativeText(android.R.string.cancel)
-                        .onNegative(new MaterialDialog.SingleButtonCallback() {
-                            @Override
-                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                resumeCamera();
-                            }
+                        .negativeButton(android.R.string.cancel, null, d -> {
+                            resumeCamera();
+                            return kotlin.Unit.INSTANCE;
                         })
-                        .alwaysCallInputCallback()
-                        .inputType(InputType.TYPE_CLASS_NUMBER)
-                        .input(R.string.input_isbn_manually_edit_text, 0, new MaterialDialog.InputCallback() {
-                            @Override
-                            public void onInput(@NonNull MaterialDialog dialog, CharSequence input) {
-                                int length = dialog.getInputEditText().getText().length();
-                                if (length == 10 || length == 13) {
-                                    dialog.getActionButton(DialogAction.POSITIVE).setEnabled(true);
-                                } else {
-                                    dialog.getActionButton(DialogAction.POSITIVE).setEnabled(false);
-                                }
-                            }
-                        })
-                        .canceledOnTouchOutside(false)
+                        .input(R.string.input_isbn_manually_edit_text, 0, null,
+                                InputType.TYPE_CLASS_NUMBER, 0, null, true, (d, input) -> {
+                                    int length = input.length();
+                                    if (length == 10 || length == 13) {
+                                        DialogActionExtKt.getActionButton(d, WhichButton.Positive).setEnabled(true);
+                                    } else {
+                                        DialogActionExtKt.getActionButton(d, WhichButton.Positive).setEnabled(false);
+                                    }
+                                    return kotlin.Unit.INSTANCE;
+                                })
+                        .noAutoDismiss()
                         .show();
                 break;
 
@@ -219,24 +210,13 @@ public class SingleAddActivity extends AppCompatActivity implements ZXingScanner
         }
 
         if (isExist) {//The book is already in the list
-            MaterialDialog dialog = new MaterialDialog.Builder(this)
-                    .title(R.string.book_duplicate_dialog_title)
-                    .content(R.string.book_duplicate_dialog_content)
-                    .positiveText(R.string.book_duplicate_dialog_positive)
-                    .onPositive(new MaterialDialog.SingleButtonCallback() {
-                        @Override
-                        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                            beginFetcher(isbn);
-                        }
-                    })
-                    .negativeText(android.R.string.cancel)
-                    .onNegative(new MaterialDialog.SingleButtonCallback() {
-                        @Override
-                        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                            finish();
-                        }
-                    })
-                    .show();
+            DialogHelper.show(this,
+                    R.string.book_duplicate_dialog_title,
+                    R.string.book_duplicate_dialog_content,
+                    R.string.book_duplicate_dialog_positive,
+                    android.R.string.cancel,
+                    () -> beginFetcher(isbn),
+                    () -> finish());
         } else {
             beginFetcher(isbn);
         }
@@ -334,76 +314,56 @@ public class SingleAddActivity extends AppCompatActivity implements ZXingScanner
     private void event0Dialog(final String isbn) {
         String dialogContent = String.format(getResources().getString(
                 R.string.isbn_unmatched_dialog_content), isbn);
-        new MaterialDialog.Builder(this)
-                .title(R.string.isbn_unmatched_dialog_title)
-                .content(dialogContent)
-                .positiveText(R.string.isbn_unmatched_dialog_positive)
-                .onPositive(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        //create a book only with isbn
-                        Book mBook = new Book();
-                        mBook.setIsbn(isbn);
-                        Intent i = new Intent(SingleAddActivity.this, BookEditActivity.class);
-                        i.putExtra(BookEditActivity.BOOK, mBook);
-                        i.putExtra(BookEditActivity.downloadCover, false);
-                        startActivity(i);
-                        finish();
-
-                    }
-                })
-                .negativeText(R.string.isbn_unmatched_dialog_negative)
-                .onNegative(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        resumeCamera();
-                    }
-                })
-                .dismissListener(new DialogInterface.OnDismissListener() {
-                    @Override
-                    public void onDismiss(DialogInterface dialogInterface) {
-                        resumeCamera();
-                    }
-                })
-                .show();
+        com.afollestad.materialdialogs.callbacks.DialogCallbackExtKt.onDismiss(
+                new MaterialDialog(this)
+                        .title(R.string.isbn_unmatched_dialog_title, null)
+                        .message(null, dialogContent, null)
+                        .positiveButton(R.string.isbn_unmatched_dialog_positive, null, d -> {
+                            Book mBook = new Book();
+                            mBook.setIsbn(isbn);
+                            Intent i = new Intent(SingleAddActivity.this, BookEditActivity.class);
+                            i.putExtra(BookEditActivity.BOOK, mBook);
+                            i.putExtra(BookEditActivity.downloadCover, false);
+                            startActivity(i);
+                            finish();
+                            return kotlin.Unit.INSTANCE;
+                        })
+                        .negativeButton(R.string.isbn_unmatched_dialog_negative, null, d -> {
+                            resumeCamera();
+                            return kotlin.Unit.INSTANCE;
+                        }),
+                d -> {
+                    resumeCamera();
+                    return kotlin.Unit.INSTANCE;
+                }).show();
 
     }
 
     private void event1Dialog(final String isbn) {
         String dialogContent = String.format(getResources().getString(
                 R.string.request_failed_dialog_content), isbn);
-        new MaterialDialog.Builder(this)
-                .title(R.string.isbn_unmatched_dialog_title)
-                .content(dialogContent)
-                .positiveText(R.string.isbn_unmatched_dialog_positive)
-                .onPositive(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        //create a book only with isbn
-                        Book mBook = new Book();
-                        mBook.setIsbn(isbn);
-                        Intent i = new Intent(SingleAddActivity.this, BookEditActivity.class);
-                        i.putExtra(BookEditActivity.BOOK, mBook);
-                        i.putExtra(BookEditActivity.downloadCover, false);
-                        startActivity(i);
-                        finish();
-
-                    }
-                })
-                .negativeText(R.string.isbn_unmatched_dialog_negative)
-                .onNegative(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        resumeCamera();
-                    }
-                })
-                .dismissListener(new DialogInterface.OnDismissListener() {
-                    @Override
-                    public void onDismiss(DialogInterface dialogInterface) {
-                        resumeCamera();
-                    }
-                })
-                .show();
+        com.afollestad.materialdialogs.callbacks.DialogCallbackExtKt.onDismiss(
+                new MaterialDialog(this)
+                        .title(R.string.isbn_unmatched_dialog_title, null)
+                        .message(null, dialogContent, null)
+                        .positiveButton(R.string.isbn_unmatched_dialog_positive, null, d -> {
+                            Book mBook = new Book();
+                            mBook.setIsbn(isbn);
+                            Intent i = new Intent(SingleAddActivity.this, BookEditActivity.class);
+                            i.putExtra(BookEditActivity.BOOK, mBook);
+                            i.putExtra(BookEditActivity.downloadCover, false);
+                            startActivity(i);
+                            finish();
+                            return kotlin.Unit.INSTANCE;
+                        })
+                        .negativeButton(R.string.isbn_unmatched_dialog_negative, null, d -> {
+                            resumeCamera();
+                            return kotlin.Unit.INSTANCE;
+                        }),
+                d -> {
+                    resumeCamera();
+                    return kotlin.Unit.INSTANCE;
+                }).show();
 
     }
 
