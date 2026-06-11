@@ -1,6 +1,7 @@
 package com.smartjinyu.mybookshelf;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -23,8 +24,8 @@ import androidx.annotation.NonNull;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.afollestad.materialdialogs.list.DialogMultiChoiceExtKt;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.opencsv.CSVWriter;
@@ -83,24 +84,13 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
                 if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
                     Log.i(TAG, "Restore backup file, uri = " + result.getData().getData());
-                    new MaterialDialog.Builder(getActivity())
-                            .title(R.string.restore_confirm_dialog_title)
-                            .content(R.string.restore_confirm_dialog_content)
-                            .positiveText(android.R.string.ok)
-                            .onPositive(new MaterialDialog.SingleButtonCallback() {
-                                @Override
-                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                    executeRestoreTask(result.getData().getData());
-                                }
-                            })
-                            .negativeText(android.R.string.cancel)
-                            .onNegative(new MaterialDialog.SingleButtonCallback() {
-                                @Override
-                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                    dialog.dismiss();
-                                }
-                            })
-                            .show();
+                    DialogHelper.show(getActivity(),
+                            R.string.restore_confirm_dialog_title,
+                            R.string.restore_confirm_dialog_content,
+                            android.R.string.ok,
+                            android.R.string.cancel,
+                            () -> executeRestoreTask(result.getData().getData()),
+                            null);
                 }
             });
 
@@ -138,75 +128,60 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     }
 
     private void exportToCSV() {
-        new MaterialDialog.Builder(getActivity())
-                .title(R.string.export_csv_dialog_title)
-                .items(R.array.export_csv_dialog_list)
-                .itemsCallbackMultiChoice(new Integer[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10},
-                        new MaterialDialog.ListCallbackMultiChoice() {
-                            @Override
-                            public boolean onSelection(MaterialDialog dialog, Integer[] which, CharSequence[] text) {
-                                if (which.length == 1) {
-                                    Toast.makeText(getActivity(), R.string.export_csv_dialog_at_least_toast,
-                                            Toast.LENGTH_SHORT).show();
-                                    return false;
+        CharSequence[] csvItems = getResources().getTextArray(R.array.export_csv_dialog_list);
+        int[] initialSelected = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+        final int[] currentSelection = initialSelected.clone();
+        java.util.List<CharSequence> csvItemList = new java.util.ArrayList<>();
+        for (CharSequence cs : csvItems) csvItemList.add(cs);
+
+        MaterialDialog csvDialog = new MaterialDialog(getActivity(), null);
+        csvDialog.title(R.string.export_csv_dialog_title, null);
+        DialogMultiChoiceExtKt.listItemsMultiChoice(csvDialog, null, csvItemList, null, initialSelected, true, false, (dialog, indices, texts) -> {
+                    if (indices.length < 2) {
+                        Toast.makeText(getActivity(), R.string.export_csv_dialog_at_least_toast, Toast.LENGTH_SHORT).show();
+                    } else {
+                        System.arraycopy(indices, 0, currentSelection, 0, Math.min(indices.length, currentSelection.length));
+                    }
+                    return kotlin.Unit.INSTANCE;
+                });
+        csvDialog.positiveButton(android.R.string.ok, null, d -> {
+                    final int[] selectedIndices = currentSelection.clone();
+                    MaterialDialog cautionDialog = new MaterialDialog(getActivity(), null);
+                    cautionDialog.title(R.string.export_csv_caution_dialog_title, null);
+                    cautionDialog.message(R.string.export_csv_caution_dialog_content, null, null);
+                    cautionDialog.positiveButton(android.R.string.ok, null, d2 -> {
+                                java.util.List<Integer> exportList = new java.util.ArrayList<>();
+                                for (int idx : selectedIndices) exportList.add(idx);
+                                exportCSVList = exportList;
+                                String filename = "Bookshelf_CSV_" + BuildConfig.VERSION_CODE + "_"
+                                        + Calendar.getInstance().getTimeInMillis() + ".csv";
+                                Intent backupFileIntent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+                                backupFileIntent.addCategory(Intent.CATEGORY_OPENABLE);
+                                backupFileIntent.setType("text/csv");
+                                backupFileIntent.putExtra(Intent.EXTRA_TITLE, filename);
+                                try {
+                                    exportCsvLauncher.launch(backupFileIntent);
+                                } catch (ActivityNotFoundException e) {
+                                    Log.e(TAG, "No Document Provider Available");
+                                    Toast.makeText(getActivity(), R.string.settings_no_document_provider_toast, Toast.LENGTH_LONG).show();
                                 }
-                                return true;
-                            }
-                        })
-                .alwaysCallMultiChoiceCallback()
-                .positiveText(android.R.string.ok)
-                .onPositive(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull final MaterialDialog listDialog, @NonNull DialogAction which) {
-                        new MaterialDialog.Builder(getActivity())
-                                .title(R.string.export_csv_caution_dialog_title)
-                                .content(R.string.export_csv_caution_dialog_content)
-                                .positiveText(android.R.string.ok)
-                                .onPositive(new MaterialDialog.SingleButtonCallback() {
-                                    @Override
-                                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                        if (listDialog.getSelectedIndices() != null) {
-                                            exportCSVList = Arrays.asList(listDialog.getSelectedIndices());
-                                        }
-                                        String filename = "Bookshelf_CSV_" + BuildConfig.VERSION_CODE + "_"
-                                                + Calendar.getInstance().getTimeInMillis() + ".csv";
-                                        Intent backupFileIntent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
-                                        backupFileIntent.addCategory(Intent.CATEGORY_OPENABLE);
-                                        backupFileIntent.setType("text/csv");
-                                        backupFileIntent.putExtra(Intent.EXTRA_TITLE, filename);
-
-                                        try {
-                                            exportCsvLauncher.launch(backupFileIntent);
-                                        } catch (ActivityNotFoundException e) {
-                                            Log.e(TAG, "No Document Provider Available");
-
-                                            Toast.makeText(getActivity(), R.string.settings_no_document_provider_toast, Toast.LENGTH_LONG)
-                                                    .show();
-                                        }
-
-                                        listDialog.dismiss();
-                                    }
-                                })
-                                .negativeText(android.R.string.cancel)
-                                .onNegative(new MaterialDialog.SingleButtonCallback() {
-                                    @Override
-                                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                        dialog.dismiss();
-                                        listDialog.dismiss();
-                                    }
-                                })
-                                .show();
-                    }
-                })
-                .negativeText(android.R.string.cancel)
-                .onNegative(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        dialog.dismiss();
-                    }
-                })
-                .autoDismiss(false)
-                .show();
+                                d.dismiss();
+                                return kotlin.Unit.INSTANCE;
+                            });
+                    cautionDialog.negativeButton(android.R.string.cancel, null, d2 -> {
+                                d2.dismiss();
+                                d.dismiss();
+                                return kotlin.Unit.INSTANCE;
+                            });
+                    cautionDialog.show();
+                    return kotlin.Unit.INSTANCE;
+                });
+        csvDialog.negativeButton(android.R.string.cancel, null, d -> {
+                    d.dismiss();
+                    return kotlin.Unit.INSTANCE;
+                });
+        csvDialog.noAutoDismiss();
+        csvDialog.show();
     }
 
 
@@ -226,33 +201,32 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         webServicesPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                new MaterialDialog.Builder(getActivity())
-                        .title(R.string.settings_web_services_title)
-                        .items(R.array.settings_web_services_entries)
-                        .positiveText(android.R.string.ok)
-                        .onPositive(new MaterialDialog.SingleButtonCallback() {
-                            @Override
-                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                Gson gson = new Gson();
-                                String toSave = gson.toJson(dialog.getSelectedIndices());
-                                sharedPreferences.edit().putString("webServices", toSave).apply();
-                                setWebServicesPreference(); // refresh initial selected list
+                CharSequence[] wsItems = getResources().getTextArray(R.array.settings_web_services_entries);
+                int[] initialSel = new int[initialSelected.length];
+                for (int i = 0; i < initialSelected.length; i++) initialSel[i] = initialSelected[i];
+                final int[] currentSel = initialSel.clone();
+                java.util.List<CharSequence> wsItemList = new java.util.ArrayList<>();
+                for (CharSequence cs : wsItems) wsItemList.add(cs);
+
+                MaterialDialog wsDialog = new MaterialDialog(getActivity(), null);
+                wsDialog.title(R.string.settings_web_services_title, null);
+                DialogMultiChoiceExtKt.listItemsMultiChoice(wsDialog, null, wsItemList, null, initialSel, true, false, (dialog, indices, texts) -> {
+                            if (indices.length >= 1) {
+                                System.arraycopy(indices, 0, currentSel, 0, Math.min(indices.length, currentSel.length));
+                            } else {
+                                Toast.makeText(getActivity(), R.string.settings_web_services_min_toast, Toast.LENGTH_SHORT).show();
                             }
-                        })
-                        .alwaysCallMultiChoiceCallback()
-                        .itemsCallbackMultiChoice(initialSelected, new MaterialDialog.ListCallbackMultiChoice() {
-                            @Override
-                            public boolean onSelection(MaterialDialog dialog, Integer[] which, CharSequence[] text) {
-                                boolean allowSelectionChange = which.length >= 1;
-                                if (!allowSelectionChange) {
-                                    Toast.makeText(getActivity(), R.string.settings_web_services_min_toast, Toast.LENGTH_SHORT)
-                                            .show();
-                                }
-                                return allowSelectionChange;
-                            }
-                        })
-                        .canceledOnTouchOutside(false)
-                        .show();
+                            return kotlin.Unit.INSTANCE;
+                        });
+                wsDialog.positiveButton(android.R.string.ok, null, d -> {
+                            Gson gson = new Gson();
+                            String toSave = gson.toJson(currentSel);
+                            sharedPreferences.edit().putString("webServices", toSave).apply();
+                            setWebServicesPreference();
+                            return kotlin.Unit.INSTANCE;
+                        });
+                wsDialog.cancelOnTouchOutside(false);
+                wsDialog.show();
 
                 return false;
             }
@@ -303,13 +277,13 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     }
 
     private void executeBackupTask(Uri uri) {
-        MaterialDialog dialog = new MaterialDialog.Builder(getActivity())
-                .title(R.string.backup_progress_dialog_title)
-                .content(R.string.backup_progress_dialog_content)
-                .progress(true, 0)
-                .progressIndeterminateStyle(false)
-                .canceledOnTouchOutside(false)
-                .show();
+        ProgressDialog dialog = new ProgressDialog(getActivity());
+        dialog.setTitle(R.string.backup_progress_dialog_title);
+        dialog.setMessage(getString(R.string.backup_progress_dialog_content));
+        dialog.setIndeterminate(true);
+        dialog.setCancelable(false);
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.show();
 
         executorService.execute(() -> {
             boolean isSucceed = doBackupWork(uri);
@@ -389,13 +363,13 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     }
 
     private void executeRestoreTask(Uri uri) {
-        MaterialDialog dialog = new MaterialDialog.Builder(getActivity())
-                .title(R.string.restore_progress_dialog_title)
-                .content(R.string.backup_progress_dialog_content)
-                .progress(true, 0)
-                .progressIndeterminateStyle(false)
-                .canceledOnTouchOutside(false)
-                .show();
+        ProgressDialog dialog = new ProgressDialog(getActivity());
+        dialog.setTitle(R.string.restore_progress_dialog_title);
+        dialog.setMessage(getString(R.string.backup_progress_dialog_content));
+        dialog.setIndeterminate(true);
+        dialog.setCancelable(false);
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.show();
 
         executorService.execute(() -> {
             boolean isSucceed = doRestoreWork(uri);
@@ -552,13 +526,13 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     }
 
     private void executeExportCsvTask(Uri uri) {
-        MaterialDialog dialog = new MaterialDialog.Builder(getActivity())
-                .title(R.string.export_progress_dialog_title)
-                .content(R.string.export_progress_dialog_content)
-                .progress(true, 0)
-                .progressIndeterminateStyle(false)
-                .canceledOnTouchOutside(false)
-                .show();
+        ProgressDialog dialog = new ProgressDialog(getActivity());
+        dialog.setTitle(R.string.export_progress_dialog_title);
+        dialog.setMessage(getString(R.string.export_progress_dialog_content));
+        dialog.setIndeterminate(true);
+        dialog.setCancelable(false);
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.show();
 
         executorService.execute(() -> {
             boolean isSucceed = doExportCsvWork(uri);

@@ -38,8 +38,10 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.afollestad.materialdialogs.callbacks.DialogCallbackExtKt;
+import com.afollestad.materialdialogs.list.DialogListExtKt;
+import com.afollestad.materialdialogs.list.DialogMultiChoiceExtKt;
 
 import java.io.File;
 import java.io.IOException;
@@ -279,33 +281,22 @@ public class BookEditActivity extends AppCompatActivity {
 
 
     private void dialogBeforeDiscard() {
-        new MaterialDialog.Builder(this)
-                .title(R.string.book_edit_activity_discard_dialog_title)
-                .content(R.string.book_edit_activity_discard_dialog_content)
-                .positiveText(R.string.book_edit_activity_discard_dialog_positive)
-                .onPositive(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        if (!BookLab.get(BookEditActivity.this).isBookExists(mBook)) {
-                            // discard a newly added book
-                            if (mBook.isHasCover()) {
-                                // delete the redundant cover file
-                                File file = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/" + mBook.getCoverPhotoFileName());
-                                boolean succeeded = file.delete();
-                                Log.i(TAG, "Remove redundant cover result = " + succeeded);
-                            }
+        DialogHelper.show(this,
+                R.string.book_edit_activity_discard_dialog_title,
+                R.string.book_edit_activity_discard_dialog_content,
+                R.string.book_edit_activity_discard_dialog_positive,
+                android.R.string.cancel,
+                () -> {
+                    if (!BookLab.get(BookEditActivity.this).isBookExists(mBook)) {
+                        if (mBook.isHasCover()) {
+                            File file = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/" + mBook.getCoverPhotoFileName());
+                            boolean succeeded = file.delete();
+                            Log.i(TAG, "Remove redundant cover result = " + succeeded);
                         }
-                        finish();
                     }
-                })
-                .negativeText(android.R.string.cancel)
-                .onNegative(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        dialog.dismiss();
-                    }
-                })
-                .show();
+                    finish();
+                },
+                null);
     }
 
     private void setLabels() {
@@ -340,93 +331,63 @@ public class BookEditActivity extends AppCompatActivity {
         labelsEditText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new MaterialDialog.Builder(BookEditActivity.this)
-                        .title(R.string.label_choice_dialog_title)
-                        .items(labels)
-                        .itemsCallbackMultiChoice(selectedItemIndex,
-                                new MaterialDialog.ListCallbackMultiChoice() {
-                                    @Override
-                                    public boolean onSelection(MaterialDialog dialog, Integer[] which, CharSequence[] text) {
-                                        // set mBook labels
-                                        List<CharSequence> allItems = dialog.getItems();
-                                        List<Integer> whichList = Arrays.asList(which);
-                                        List<Label> labels = labelLab.getLabels();
-                                        // refresh label list for that user may add label
-                                        for (int i = 0; i < allItems.size(); i++) {
-                                            if (whichList.contains(i)) {
-                                                // the item is selected, add it to mBook label list
-                                                for (Label label : labels) {
-                                                    if (label.getTitle().equals(allItems.get(i).toString())) {
-                                                        // the label corresponding to the item
-                                                        mBook.addLabel(label);
-                                                        break;
-                                                    }
-                                                }
+                final java.util.ArrayList<CharSequence> labelNames = new java.util.ArrayList<>();
+                for (Label lb : labels) labelNames.add(lb.getTitle());
 
-                                            } else {
-                                                // the item is not selected, remove it from mBook label list
-                                                for (Label label : labels) {
-                                                    if (label.getTitle().equals(allItems.get(i).toString())) {
-                                                        // the label corresponding to the item
-                                                        mBook.removeLabel(label);
-                                                        break;
-                                                    }
-                                                }
-                                            }
+                int[] initialSel = new int[selectedItemIndex.length];
+                for (int i = 0; i < selectedItemIndex.length; i++) initialSel[i] = selectedItemIndex[i];
+
+                MaterialDialog labelDialog = new MaterialDialog(BookEditActivity.this, null);
+                labelDialog.title(R.string.label_choice_dialog_title, null);
+                DialogMultiChoiceExtKt.listItemsMultiChoice(labelDialog, null, labelNames, null, initialSel, true, true, (dialog, indices, texts) -> {
+                            // set mBook labels
+                            List<Label> allLabels = labelLab.getLabels();
+                            java.util.List<Integer> whichList = new java.util.ArrayList<>();
+                            for (int idx : indices) whichList.add(idx);
+                            for (int i = 0; i < labelNames.size(); i++) {
+                                if (whichList.contains(i)) {
+                                    for (Label label : allLabels) {
+                                        if (label.getTitle().equals(labelNames.get(i).toString())) {
+                                            mBook.addLabel(label);
+                                            break;
                                         }
-                                        setLabels();
-                                        return true;
                                     }
-                                })
-                        .neutralText(R.string.label_choice_dialog_neutral)
-                        .onNeutral(new MaterialDialog.SingleButtonCallback() {
-                            @Override
-                            public void onClick(@NonNull final MaterialDialog multiChoiceDialog, @NonNull DialogAction which) {
-                                // create new label
-                                new MaterialDialog.Builder(BookEditActivity.this)
-                                        .title(R.string.label_add_new_dialog_title)
-                                        .inputRange(1, getResources().getInteger(R.integer.label_name_max_length))
-                                        .input(
-                                                R.string.label_add_new_dialog_edit_text,
-                                                0,
-                                                new MaterialDialog.InputCallback() {
-                                                    @Override
-                                                    public void onInput(@NonNull MaterialDialog dialog1, CharSequence input) {
-                                                        // nothing to do here
-                                                    }
-                                                })
-                                        .onPositive(new MaterialDialog.SingleButtonCallback() {
-                                            @Override
-                                            public void onClick(@NonNull MaterialDialog inputDialog, @NonNull DialogAction which) {
-                                                Label labelToAdd = new Label();
-                                                labelToAdd.setTitle(inputDialog.getInputEditText().getText().toString());
-                                                labelLab.addLabel(labelToAdd);
-                                                Log.i(TAG, "New label created " + labelToAdd.getTitle());
-                                                multiChoiceDialog.getItems().add(labelToAdd.getTitle());
-                                                multiChoiceDialog.notifyItemInserted(multiChoiceDialog.getItems().size() - 1);
-                                            }
-                                        })
-                                        .negativeText(android.R.string.cancel)
-                                        .onNegative(new MaterialDialog.SingleButtonCallback() {
-                                            @Override
-                                            public void onClick(@NonNull MaterialDialog inputDialog, @NonNull DialogAction which) {
-                                                inputDialog.dismiss();
-                                            }
-                                        })
-                                        .show();
+                                } else {
+                                    for (Label label : allLabels) {
+                                        if (label.getTitle().equals(labelNames.get(i).toString())) {
+                                            mBook.removeLabel(label);
+                                            break;
+                                        }
+                                    }
+                                }
                             }
-                        })
-                        .positiveText(android.R.string.ok)
-                        .onPositive(new MaterialDialog.SingleButtonCallback() {
-                            @Override
-                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                dialog.dismiss();
-                            }
-                        })
-
-                        .autoDismiss(false)
-                        .show();
-
+                            setLabels();
+                            return kotlin.Unit.INSTANCE;
+                        });
+                labelDialog.positiveButton(android.R.string.ok, null, d -> {
+                            d.dismiss();
+                            return kotlin.Unit.INSTANCE;
+                        });
+                labelDialog.neutralButton(R.string.label_choice_dialog_neutral, null, multiChoiceDialog -> {
+                            DialogHelper.showInput(BookEditActivity.this,
+                                    R.string.label_add_new_dialog_title,
+                                    R.string.label_add_new_dialog_edit_text, null,
+                                    getResources().getInteger(R.integer.label_name_max_length),
+                                    android.R.string.ok,
+                                    android.R.string.cancel,
+                                    (inputDialog, input) -> {
+                                        Label labelToAdd = new Label();
+                                        labelToAdd.setTitle(input);
+                                        labelLab.addLabel(labelToAdd);
+                                        Log.i(TAG, "New label created " + labelToAdd.getTitle());
+                                        labelNames.add(labelToAdd.getTitle());
+                                        DialogListExtKt.updateListItems(multiChoiceDialog, null, labelNames, null, null);
+                                    },
+                                    null);
+                            return kotlin.Unit.INSTANCE;
+                        });
+                labelDialog.noAutoDismiss();
+                labelDialog.show();
             }
         });
     }
@@ -512,44 +473,24 @@ public class BookEditActivity extends AppCompatActivity {
                 String selectedName = selectedBS.toString();
                 if (selectedName.equals(getResources().getString(R.string.custom_spinner_item))) {
                     Log.i(TAG, "Custom Bookshelf clicked");
-                    MaterialDialog inputDialog = new MaterialDialog.Builder(BookEditActivity.this)
-                            .title(R.string.custom_book_shelf_dialog_title)
-                            .inputRange(1, getResources().getInteger(R.integer.bookshelf_name_max_length))
-                            .input(R.string.custom_book_shelf_dialog_edit_text, 0, new MaterialDialog.InputCallback() {
-                                @Override
-                                public void onInput(@NonNull MaterialDialog dialog, CharSequence input) {
-                                    // nothing to do here
-                                }
-                            })
-                            .onPositive(new MaterialDialog.SingleButtonCallback() {
-                                @Override
-                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                    BookShelf bookShelf = new BookShelf();
-                                    if (dialog.getInputEditText().getText() != null) {
-                                        bookShelf.setTitle(dialog.getInputEditText().getText().toString());
-                                    } else {
-                                        bookShelf.setTitle("");
-                                    }
-                                    bookShelfLab.addBookShelf(bookShelf);
-                                    mBook.setBookshelfID(bookShelf.getId());
-                                    Log.i(TAG, "New and set Bookshelf = " + bookShelf.getTitle());
-                                    setBookShelf();
-                                }
-                            })
-                            .negativeText(android.R.string.cancel)
-                            .onNegative(new MaterialDialog.SingleButtonCallback() {
-                                @Override
-                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                    bookshelfSpinner.setSelection(curBookshelfPos);
-                                }
-                            })
-                            .dismissListener(new DialogInterface.OnDismissListener() {
-                                @Override
-                                public void onDismiss(DialogInterface dialogInterface) {
-                                    bookshelfSpinner.setSelection(curBookshelfPos);
-                                }
-                            })
-                            .show();
+                    MaterialDialog inputDialog = DialogHelper.onDismiss(
+                            DialogHelper.showInputNoAutoDismiss(BookEditActivity.this,
+                                    getString(R.string.custom_book_shelf_dialog_title),
+                                    getString(R.string.custom_book_shelf_dialog_edit_text), null,
+                                    0,
+                                    getResources().getInteger(R.integer.bookshelf_name_max_length),
+                                    getString(android.R.string.ok),
+                                    getString(android.R.string.cancel),
+                                    (dialog, input) -> {
+                                        BookShelf bookShelf = new BookShelf();
+                                        bookShelf.setTitle(input.isEmpty() ? "" : input);
+                                        bookShelfLab.addBookShelf(bookShelf);
+                                        mBook.setBookshelfID(bookShelf.getId());
+                                        Log.i(TAG, "New and set Bookshelf = " + bookShelf.getTitle());
+                                        setBookShelf();
+                                    },
+                                    () -> bookshelfSpinner.setSelection(curBookshelfPos)),
+                            () -> bookshelfSpinner.setSelection(curBookshelfPos));
                 } else {
                     Log.i(TAG, "set bookshelf " + selectedBS.getTitle());
                     curBookshelfPos = pos;
@@ -598,37 +539,31 @@ public class BookEditActivity extends AppCompatActivity {
         coverImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new MaterialDialog.Builder(BookEditActivity.this)
-                        .title(R.string.cover_change_dialog_title)
-                        .items(R.array.cover_change_dialog_list)
-                        .itemsCallback(new MaterialDialog.ListCallback() {
-                            @Override
-                            public void onSelection(MaterialDialog dialog, View itemView, int position, CharSequence text) {
-                                if (position == 0) {
-                                    if (ContextCompat.checkSelfPermission(BookEditActivity.this, Manifest.permission.CAMERA)
-                                            != PackageManager.PERMISSION_GRANTED) {
-                                        ActivityCompat.requestPermissions(BookEditActivity.this,
-                                                new String[]{Manifest.permission.CAMERA}, CAMERA_PERMISSION);
-                                    } else {
-                                        takePictureIntent();
-                                    }
-
-                                } else if (position == 1) {
-                                    Intent i = new Intent(Intent.ACTION_GET_CONTENT);
-                                    i.setType("image/*");
-                                    if (i.resolveActivity(getPackageManager()) != null) {
-                                        chooseImageLauncher.launch(i);
-                                    } else {
-                                        Log.e(TAG, "No Image chooser available");
-                                        Toast.makeText(BookEditActivity.this, R.string.cover_change_no_choose_picture_app, Toast.LENGTH_LONG)
-                                                .show();
-                                    }
-
+                CharSequence[] items = getResources().getTextArray(R.array.cover_change_dialog_list);
+                DialogHelper.showList(BookEditActivity.this,
+                        R.string.cover_change_dialog_title,
+                        items,
+                        (position, text) -> {
+                            if (position == 0) {
+                                if (ContextCompat.checkSelfPermission(BookEditActivity.this, Manifest.permission.CAMERA)
+                                        != PackageManager.PERMISSION_GRANTED) {
+                                    ActivityCompat.requestPermissions(BookEditActivity.this,
+                                            new String[]{Manifest.permission.CAMERA}, CAMERA_PERMISSION);
+                                } else {
+                                    takePictureIntent();
+                                }
+                            } else if (position == 1) {
+                                Intent i = new Intent(Intent.ACTION_GET_CONTENT);
+                                i.setType("image/*");
+                                if (i.resolveActivity(getPackageManager()) != null) {
+                                    chooseImageLauncher.launch(i);
+                                } else {
+                                    Log.e(TAG, "No Image chooser available");
+                                    Toast.makeText(BookEditActivity.this, R.string.cover_change_no_choose_picture_app, Toast.LENGTH_LONG)
+                                            .show();
                                 }
                             }
-                        })
-                        .show();
-
+                        });
             }
         });
     }

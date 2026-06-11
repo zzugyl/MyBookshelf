@@ -158,29 +158,30 @@ public class SingleAddActivity extends AppCompatActivity implements ZXingScanner
                 break;
             case R.id.menu_simple_add_manually:
                 mScannerView.stopCamera();
-                new MaterialDialog(this)
-                        .title(R.string.input_isbn_manually_title, null)
-                        .message(R.string.input_isbn_manually_content, null, null)
-                        .positiveButton(R.string.input_isbn_manually_positive, null, d -> {
-                            addBook(com.afollestad.materialdialogs.input.DialogInputExtKt.getInputField(d).getText().toString());
+                MaterialDialog isbnDialog = new MaterialDialog(this, null);
+                isbnDialog.title(R.string.input_isbn_manually_title, null);
+                isbnDialog.message(R.string.input_isbn_manually_content, null, null);
+                isbnDialog.positiveButton(R.string.input_isbn_manually_positive, null, d -> {
+                    addBook(com.afollestad.materialdialogs.input.DialogInputExtKt.getInputField(d).getText().toString());
+                    return kotlin.Unit.INSTANCE;
+                });
+                isbnDialog.negativeButton(android.R.string.cancel, null, d -> {
+                    resumeCamera();
+                    return kotlin.Unit.INSTANCE;
+                });
+                com.afollestad.materialdialogs.input.DialogInputExtKt.input(isbnDialog,
+                        null, R.string.input_isbn_manually_edit_text, null, null,
+                        InputType.TYPE_CLASS_NUMBER, 0, false, true, (d, input) -> {
+                            int length = input.length();
+                            if (length == 10 || length == 13) {
+                                DialogActionExtKt.getActionButton(d, WhichButton.POSITIVE).setEnabled(true);
+                            } else {
+                                DialogActionExtKt.getActionButton(d, WhichButton.POSITIVE).setEnabled(false);
+                            }
                             return kotlin.Unit.INSTANCE;
-                        })
-                        .negativeButton(android.R.string.cancel, null, d -> {
-                            resumeCamera();
-                            return kotlin.Unit.INSTANCE;
-                        })
-                        .input(R.string.input_isbn_manually_edit_text, 0, null,
-                                InputType.TYPE_CLASS_NUMBER, 0, null, true, (d, input) -> {
-                                    int length = input.length();
-                                    if (length == 10 || length == 13) {
-                                        DialogActionExtKt.getActionButton(d, WhichButton.Positive).setEnabled(true);
-                                    } else {
-                                        DialogActionExtKt.getActionButton(d, WhichButton.Positive).setEnabled(false);
-                                    }
-                                    return kotlin.Unit.INSTANCE;
-                                })
-                        .noAutoDismiss()
-                        .show();
+                        });
+                isbnDialog.noAutoDismiss();
+                isbnDialog.show();
                 break;
 
             case R.id.menu_simple_add_totally_manual:
@@ -315,7 +316,7 @@ public class SingleAddActivity extends AppCompatActivity implements ZXingScanner
         String dialogContent = String.format(getResources().getString(
                 R.string.isbn_unmatched_dialog_content), isbn);
         com.afollestad.materialdialogs.callbacks.DialogCallbackExtKt.onDismiss(
-                new MaterialDialog(this)
+                new MaterialDialog(this, null)
                         .title(R.string.isbn_unmatched_dialog_title, null)
                         .message(null, dialogContent, null)
                         .positiveButton(R.string.isbn_unmatched_dialog_positive, null, d -> {
@@ -343,7 +344,7 @@ public class SingleAddActivity extends AppCompatActivity implements ZXingScanner
         String dialogContent = String.format(getResources().getString(
                 R.string.request_failed_dialog_content), isbn);
         com.afollestad.materialdialogs.callbacks.DialogCallbackExtKt.onDismiss(
-                new MaterialDialog(this)
+                new MaterialDialog(this, null)
                         .title(R.string.isbn_unmatched_dialog_title, null)
                         .message(null, dialogContent, null)
                         .positiveButton(R.string.isbn_unmatched_dialog_positive, null, d -> {

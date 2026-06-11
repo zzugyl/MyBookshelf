@@ -25,8 +25,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.afollestad.materialdialogs.list.DialogListExtKt;
+import com.afollestad.materialdialogs.list.DialogMultiChoiceExtKt;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -140,145 +141,94 @@ public class BatchAddActivity extends AppCompatActivity {
 
         final BookShelfLab bookShelfLab = BookShelfLab.get(BatchAddActivity.this);
         final List<BookShelf> bookShelves = bookShelfLab.getBookShelves();
-        new MaterialDialog.Builder(BatchAddActivity.this)
-                .title(R.string.move_to_dialog_title)
-                .items(bookShelves)
-                .itemsCallback(new MaterialDialog.ListCallback() {
-                    @Override
-                    public void onSelection(MaterialDialog dialog, View itemView, int position, CharSequence text) {
-                        List<BookShelf> bookShelves = bookShelfLab.getBookShelves();
-                        for (BookShelf bookShelf : bookShelves) {
-                            if (bookShelf.toString().equals(text)) {
-                                // selected bookshelf
-                                for (Book book : mBooks) {
-                                    book.setBookshelfID(bookShelf.getId());
-                                }
-                                break;
-                            }
-                        }
-                        dialog.dismiss();
-                        addLabel();
-                        // add label
-                    }
-                })
-                .neutralText(R.string.move_to_dialog_neutral)
-                .onNeutral(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull final MaterialDialog listdialog, @NonNull DialogAction which) {
-                        // create new bookshelf
-                        new MaterialDialog.Builder(BatchAddActivity.this)
-                                .title(R.string.custom_book_shelf_dialog_title)
-                                .inputRange(1,
-                                        getResources().getInteger(R.integer.bookshelf_name_max_length))
-                                .input(
-                                        R.string.custom_book_shelf_dialog_edit_text,
-                                        0,
-                                        new MaterialDialog.InputCallback() {
-                                            @Override
-                                            public void onInput(@NonNull MaterialDialog dialog, CharSequence input) {
-                                                // nothing to do here
-                                            }
-                                        })
-                                .onPositive(new MaterialDialog.SingleButtonCallback() {
-                                    @Override
-                                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                        BookShelf bookShelfToAdd = new BookShelf();
-                                        bookShelfToAdd.setTitle(dialog.getInputEditText().getText().toString());
-                                        bookShelfLab.addBookShelf(bookShelfToAdd);
-                                        Log.i(TAG, "New bookshelf created " + bookShelfToAdd.getTitle());
-                                        listdialog.getItems().add(bookShelfToAdd.toString());
-                                        listdialog.notifyItemInserted(listdialog.getItems().size() - 1);
-                                    }
-                                })
-                                .negativeText(android.R.string.cancel)
-                                .onNegative(new MaterialDialog.SingleButtonCallback() {
-                                    @Override
-                                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                        dialog.dismiss();
-                                    }
-                                })
-                                .show();
+        final java.util.ArrayList<CharSequence> bookShelfNames = new java.util.ArrayList<>();
+        for (BookShelf bs : bookShelves) bookShelfNames.add(bs.toString());
 
+        MaterialDialog bsDialog = new MaterialDialog(BatchAddActivity.this, null);
+        bsDialog.title(R.string.move_to_dialog_title, null);
+        DialogListExtKt.listItems(bsDialog, null, bookShelfNames, null, false, (dialog, position, text) -> {
+                    List<BookShelf> allShelves = bookShelfLab.getBookShelves();
+                    for (BookShelf bookShelf : allShelves) {
+                        if (bookShelf.toString().equals(text.toString())) {
+                            for (Book book : mBooks) {
+                                book.setBookshelfID(bookShelf.getId());
+                            }
+                            break;
+                        }
                     }
-                })
-                .autoDismiss(false)
-                // if autoDismiss = false, the list dialog will dismiss when a new bookshelf is added
-                .show();
+                    dialog.dismiss();
+                    addLabel();
+                    return kotlin.Unit.INSTANCE;
+                });
+        bsDialog.neutralButton(R.string.move_to_dialog_neutral, null, listdialog -> {
+                    DialogHelper.showInput(BatchAddActivity.this,
+                            R.string.custom_book_shelf_dialog_title,
+                            R.string.custom_book_shelf_dialog_edit_text, null,
+                            getResources().getInteger(R.integer.bookshelf_name_max_length),
+                            android.R.string.ok,
+                            android.R.string.cancel,
+                            (inputDialog, input) -> {
+                                BookShelf bookShelfToAdd = new BookShelf();
+                                bookShelfToAdd.setTitle(input);
+                                bookShelfLab.addBookShelf(bookShelfToAdd);
+                                Log.i(TAG, "New bookshelf created " + bookShelfToAdd.getTitle());
+                                bookShelfNames.add(bookShelfToAdd.toString());
+                                DialogListExtKt.updateListItems(listdialog, null, bookShelfNames, null, null);
+                            },
+                            null);
+                    return kotlin.Unit.INSTANCE;
+                });
+        bsDialog.noAutoDismiss();
+        bsDialog.show();
 
     }
 
     private void addLabel() {
         final LabelLab labelLab = LabelLab.get(BatchAddActivity.this);
         final List<Label> labels = labelLab.getLabels();
-        new MaterialDialog.Builder(BatchAddActivity.this)
-                .title(R.string.add_label_dialog_title)
-                .items(labels)
-                .itemsCallbackMultiChoice(null, new MaterialDialog.ListCallbackMultiChoice() {
-                    @Override
-                    public boolean onSelection(MaterialDialog dialog, Integer[] which, CharSequence[] text) {
-                        List<Label> labels = labelLab.getLabels();
-                        // must refresh labels here because if user add label, the list won't update,
-                        // and select the newly add label won't take effect
-                        for (int i = 0; i < which.length; i++) {
-                            for (Label label : labels) {
-                                if (label.getTitle().equals(text[i])) {
-                                    // selected label
-                                    for (Book book : mBooks) {
-                                        book.addLabel(label);
-                                    }
-                                    break;
+        final java.util.ArrayList<CharSequence> labelNames = new java.util.ArrayList<>();
+        for (Label lb : labels) labelNames.add(lb.getTitle());
+
+        MaterialDialog addLabelDialog = new MaterialDialog(BatchAddActivity.this, null);
+        addLabelDialog.title(R.string.add_label_dialog_title, null);
+        DialogMultiChoiceExtKt.listItemsMultiChoice(addLabelDialog, null, labelNames, null, null, true, true, (dialog, indices, texts) -> {
+                    List<Label> allLabels = labelLab.getLabels();
+                    for (int idx : indices) {
+                        for (Label label : allLabels) {
+                            if (label.getTitle().equals(labelNames.get(idx).toString())) {
+                                for (Book book : mBooks) {
+                                    book.addLabel(label);
                                 }
+                                break;
                             }
                         }
-                        dialog.dismiss();
-                        BookLab.get(BatchAddActivity.this).addBooks(mBooks);
-                        finish();
-                        return true;
-
                     }
-                })
-                .neutralText(R.string.label_choice_dialog_neutral)
-                .onNeutral(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull final MaterialDialog listDialog, @NonNull DialogAction which) {
-                        // create new label
-                        new MaterialDialog.Builder(BatchAddActivity.this)
-                                .title(R.string.label_add_new_dialog_title)
-                                .inputRange(1, getResources().getInteger(R.integer.label_name_max_length))
-                                .input(
-                                        R.string.label_add_new_dialog_edit_text,
-                                        0,
-                                        new MaterialDialog.InputCallback() {
-                                            @Override
-                                            public void onInput(@NonNull MaterialDialog dialog1, CharSequence input) {
-                                                // nothing to do here
-                                            }
-                                        })
-                                .onPositive(new MaterialDialog.SingleButtonCallback() {
-                                    @Override
-                                    public void onClick(@NonNull MaterialDialog inputDialog, @NonNull DialogAction which) {
-                                        Label labelToAdd = new Label();
-                                        labelToAdd.setTitle(inputDialog.getInputEditText().getText().toString());
-                                        labelLab.addLabel(labelToAdd);
-                                        Log.i(TAG, "New label created " + labelToAdd.getTitle());
-                                        listDialog.getItems().add(labelToAdd.getTitle());
-                                        listDialog.notifyItemInserted(listDialog.getItems().size() - 1);
-                                    }
-                                })
-                                .negativeText(android.R.string.cancel)
-                                .onNegative(new MaterialDialog.SingleButtonCallback() {
-                                    @Override
-                                    public void onClick(@NonNull MaterialDialog inputDialog, @NonNull DialogAction which) {
-                                        inputDialog.dismiss();
-                                    }
-                                })
-                                .show();
-                    }
-                })
-                .positiveText(android.R.string.ok)
-                .autoDismiss(false)
-                .show();
-
+                    dialog.dismiss();
+                    BookLab.get(BatchAddActivity.this).addBooks(mBooks);
+                    finish();
+                    return kotlin.Unit.INSTANCE;
+                });
+        addLabelDialog.positiveButton(android.R.string.ok, null, null);
+        addLabelDialog.neutralButton(R.string.label_choice_dialog_neutral, null, listDialog -> {
+                    DialogHelper.showInput(BatchAddActivity.this,
+                            R.string.label_add_new_dialog_title,
+                            R.string.label_add_new_dialog_edit_text, null,
+                            getResources().getInteger(R.integer.label_name_max_length),
+                            android.R.string.ok,
+                            android.R.string.cancel,
+                            (inputDialog, input) -> {
+                                Label labelToAdd = new Label();
+                                labelToAdd.setTitle(input);
+                                labelLab.addLabel(labelToAdd);
+                                Log.i(TAG, "New label created " + labelToAdd.getTitle());
+                                labelNames.add(labelToAdd.getTitle());
+                                DialogListExtKt.updateListItems(listDialog, null, labelNames, null, null);
+                            },
+                            null);
+                    return kotlin.Unit.INSTANCE;
+                });
+        addLabelDialog.noAutoDismiss();
+        addLabelDialog.show();
     }
 
     private void setTabTitle() {
@@ -365,59 +315,34 @@ public class BatchAddActivity extends AppCompatActivity {
     private void event0Dialog(final String isbn) {
         String dialogContent = String.format(getResources().getString(
                 R.string.isbn_unmatched_dialog_batch_content), isbn);
-        new MaterialDialog.Builder(this)
-                .title(R.string.isbn_unmatched_dialog_title)
-                .content(dialogContent)
-                .positiveText(R.string.isbn_unmatched_dialog_negative)
-                .onPositive(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        dialog.dismiss();
-                    }
-                })
-                .negativeText(android.R.string.cancel)
-                .show();
-
+        DialogHelper.show(this,
+                getString(R.string.isbn_unmatched_dialog_title),
+                dialogContent,
+                getString(R.string.isbn_unmatched_dialog_negative),
+                getString(android.R.string.cancel),
+                null, null);
     }
 
     private void event1Dialog(final String isbn) {
         String dialogContent = String.format(getResources().getString(
                 R.string.request_failed_dialog_batch_content), isbn);
-        new MaterialDialog.Builder(this)
-                .title(R.string.isbn_unmatched_dialog_title)
-                .content(dialogContent)
-                .positiveText(R.string.isbn_unmatched_dialog_negative)
-                .onPositive(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        dialog.dismiss();
-                    }
-                })
-                .negativeText(android.R.string.cancel)
-                .show();
-
+        DialogHelper.show(this,
+                getString(R.string.isbn_unmatched_dialog_title),
+                dialogContent,
+                getString(R.string.isbn_unmatched_dialog_negative),
+                getString(android.R.string.cancel),
+                null, null);
     }
 
     private void dialogBeforeDiscard() {
         if (mBooks.size() != 0) {
-            new MaterialDialog.Builder(this)
-                    .title(R.string.batch_add_activity_discard_dialog_title)
-                    .content(R.string.batch_add_activity_discard_dialog_content)
-                    .positiveText(R.string.batch_add_activity_discard_dialog_positive)
-                    .onPositive(new MaterialDialog.SingleButtonCallback() {
-                        @Override
-                        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                            finish();
-                        }
-                    })
-                    .negativeText(android.R.string.cancel)
-                    .onNegative(new MaterialDialog.SingleButtonCallback() {
-                        @Override
-                        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                            dialog.dismiss();
-                        }
-                    })
-                    .show();
+            DialogHelper.show(this,
+                    R.string.batch_add_activity_discard_dialog_title,
+                    R.string.batch_add_activity_discard_dialog_content,
+                    R.string.batch_add_activity_discard_dialog_positive,
+                    android.R.string.cancel,
+                    () -> finish(),
+                    null);
         } else {
             finish();
         }
