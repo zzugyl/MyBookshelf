@@ -158,7 +158,7 @@ public class SingleAddActivity extends AppCompatActivity implements ZXingScanner
                 break;
             case R.id.menu_simple_add_manually:
                 mScannerView.stopCamera();
-                MaterialDialog isbnDialog = new MaterialDialog(this, null);
+                MaterialDialog isbnDialog = new MaterialDialog(this, com.afollestad.materialdialogs.ModalDialog.INSTANCE);
                 isbnDialog.title(R.string.input_isbn_manually_title, null);
                 isbnDialog.message(R.string.input_isbn_manually_content, null, null);
                 isbnDialog.positiveButton(R.string.input_isbn_manually_positive, null, d -> {
@@ -316,7 +316,7 @@ public class SingleAddActivity extends AppCompatActivity implements ZXingScanner
         String dialogContent = String.format(getResources().getString(
                 R.string.isbn_unmatched_dialog_content), isbn);
         com.afollestad.materialdialogs.callbacks.DialogCallbackExtKt.onDismiss(
-                new MaterialDialog(this, null)
+                new MaterialDialog(this, com.afollestad.materialdialogs.ModalDialog.INSTANCE)
                         .title(R.string.isbn_unmatched_dialog_title, null)
                         .message(null, dialogContent, null)
                         .positiveButton(R.string.isbn_unmatched_dialog_positive, null, d -> {
@@ -344,7 +344,7 @@ public class SingleAddActivity extends AppCompatActivity implements ZXingScanner
         String dialogContent = String.format(getResources().getString(
                 R.string.request_failed_dialog_content), isbn);
         com.afollestad.materialdialogs.callbacks.DialogCallbackExtKt.onDismiss(
-                new MaterialDialog(this, null)
+                new MaterialDialog(this, com.afollestad.materialdialogs.ModalDialog.INSTANCE)
                         .title(R.string.isbn_unmatched_dialog_title, null)
                         .message(null, dialogContent, null)
                         .positiveButton(R.string.isbn_unmatched_dialog_positive, null, d -> {

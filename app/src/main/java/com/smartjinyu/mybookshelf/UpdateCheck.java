@@ -40,7 +40,7 @@ public class UpdateCheck {
                     int newVersionCode = response.body().getVersion_code();
                     Log.i(TAG, "Newest Version Code is = " + newVersionCode + ", current code is " + BuildConfig.VERSION_CODE);
                     if (newVersionCode > BuildConfig.VERSION_CODE) {
-                        new MaterialDialog(mContext, null)
+                        new MaterialDialog(mContext, com.afollestad.materialdialogs.ModalDialog.INSTANCE)
                                 .title(R.string.new_version_find_dialog_title, null)
                                 .message(null, String.format(
                                         mContext.getString(R.string.new_version_find_dialog_content),

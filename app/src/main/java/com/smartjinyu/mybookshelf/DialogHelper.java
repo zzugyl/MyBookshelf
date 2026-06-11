@@ -29,7 +29,7 @@ public class DialogHelper {
                             @StringRes int titleRes, @StringRes int contentRes,
                             @StringRes int positiveRes, @StringRes int negativeRes,
                             @Nullable Runnable onPositive, @Nullable Runnable onNegative) {
-        new MaterialDialog(context, null)
+        new MaterialDialog(context, com.afollestad.materialdialogs.ModalDialog.INSTANCE)
                 .title(titleRes, null)
                 .message(contentRes, null, null)
                 .positiveButton(positiveRes, null, onPositive != null ? d -> {
@@ -48,7 +48,7 @@ public class DialogHelper {
                             @NonNull String title, @NonNull String content,
                             @Nullable String positiveText, @Nullable String negativeText,
                             @Nullable Runnable onPositive, @Nullable Runnable onNegative) {
-        new MaterialDialog(context, null)
+        new MaterialDialog(context, com.afollestad.materialdialogs.ModalDialog.INSTANCE)
                 .title(null, title)
                 .message(null, content, null)
                 .positiveButton(null, positiveText, onPositive != null ? d -> {
@@ -67,7 +67,7 @@ public class DialogHelper {
                                        @StringRes int titleRes, @StringRes int contentRes,
                                        @StringRes int positiveRes, @StringRes int negativeRes, @StringRes int neutralRes,
                                        @Nullable Runnable onPositive, @Nullable Runnable onNegative, @Nullable Runnable onNeutral) {
-        new MaterialDialog(context, null)
+        new MaterialDialog(context, com.afollestad.materialdialogs.ModalDialog.INSTANCE)
                 .title(titleRes, null)
                 .message(contentRes, null, null)
                 .positiveButton(positiveRes, null, onPositive != null ? d -> {
@@ -93,7 +93,7 @@ public class DialogHelper {
                                            @StringRes int positiveRes, @StringRes int negativeRes,
                                            @NonNull InputCallback onPositive,
                                            @Nullable Runnable onNegative) {
-        MaterialDialog dialog = new MaterialDialog(context, null);
+        MaterialDialog dialog = new MaterialDialog(context, com.afollestad.materialdialogs.ModalDialog.INSTANCE);
         dialog.title(titleRes, null);
         DialogInputExtKt.input(dialog, null, hintRes, prefill, null, 0, inputMaxLength, true, true, (d, input) -> {
             onPositive.onInput(d, input.toString());
@@ -116,7 +116,7 @@ public class DialogHelper {
                                            @Nullable String positiveText, @Nullable String negativeText,
                                            @NonNull InputCallback onPositive,
                                            @Nullable Runnable onNegative) {
-        MaterialDialog dialog = new MaterialDialog(context, null);
+        MaterialDialog dialog = new MaterialDialog(context, com.afollestad.materialdialogs.ModalDialog.INSTANCE);
         dialog.title(null, title);
         DialogInputExtKt.input(dialog, hint, null, prefill, null, 0, inputMaxLength, true, true, (d, input) -> {
             onPositive.onInput(d, input.toString());
@@ -139,7 +139,7 @@ public class DialogHelper {
                                                         @Nullable String positiveText, @Nullable String negativeText,
                                                         @NonNull InputCallback onPositive,
                                                         @Nullable Runnable onNegative) {
-        MaterialDialog dialog = new MaterialDialog(context, null);
+        MaterialDialog dialog = new MaterialDialog(context, com.afollestad.materialdialogs.ModalDialog.INSTANCE);
         dialog.title(null, title);
         DialogInputExtKt.input(dialog, hint, null, prefill, null, inputType, inputMaxLength, false, true, (d, input) -> {
             onPositive.onInput(d, input.toString());
@@ -161,7 +161,7 @@ public class DialogHelper {
                                 @NonNull CharSequence[] items,
                                 @NonNull ListCallback onSelected) {
         List<CharSequence> itemList = Arrays.asList(items);
-        MaterialDialog dialog = new MaterialDialog(context, null);
+        MaterialDialog dialog = new MaterialDialog(context, com.afollestad.materialdialogs.ModalDialog.INSTANCE);
         dialog.title(titleRes, null);
         DialogListExtKt.listItems(dialog, null, itemList, null, false, (d, index, text) -> {
             onSelected.onSelected(index, text.toString());
@@ -178,7 +178,7 @@ public class DialogHelper {
                                         @StringRes int positiveRes,
                                         @NonNull ListCallback onSelected) {
         List<CharSequence> itemList = Arrays.asList(items);
-        MaterialDialog dialog = new MaterialDialog(context, null);
+        MaterialDialog dialog = new MaterialDialog(context, com.afollestad.materialdialogs.ModalDialog.INSTANCE);
         dialog.title(titleRes, null);
         DialogSingleChoiceExtKt.listItemsSingleChoice(dialog, null, itemList, null, selectedIndex, true, 0, 0, (d, index, text) -> {
             onSelected.onSelected(index, text.toString());
@@ -196,7 +196,7 @@ public class DialogHelper {
                                                  @StringRes int positiveRes,
                                                  @NonNull MultiCallback onSelected) {
         List<CharSequence> itemList = Arrays.asList(items);
-        MaterialDialog dialog = new MaterialDialog(context, null);
+        MaterialDialog dialog = new MaterialDialog(context, com.afollestad.materialdialogs.ModalDialog.INSTANCE);
         dialog.title(titleRes, null);
         DialogMultiChoiceExtKt.listItemsMultiChoice(dialog, null, itemList, null, initialSelection, true, true, (d, indices, texts) -> {
             onSelected.onSelected(d, indices);
@@ -217,7 +217,7 @@ public class DialogHelper {
                                                             @NonNull MultiCallback onSelected,
                                                             @Nullable Runnable onNeutral) {
         List<CharSequence> itemList = Arrays.asList(items);
-        MaterialDialog dialog = new MaterialDialog(context, null);
+        MaterialDialog dialog = new MaterialDialog(context, com.afollestad.materialdialogs.ModalDialog.INSTANCE);
         dialog.title(titleRes, null);
         DialogMultiChoiceExtKt.listItemsMultiChoice(dialog, null, itemList, null, initialSelection, true, true, (d, indices, texts) -> {
             onSelected.onSelected(d, indices);

@@ -134,7 +134,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         java.util.List<CharSequence> csvItemList = new java.util.ArrayList<>();
         for (CharSequence cs : csvItems) csvItemList.add(cs);
 
-        MaterialDialog csvDialog = new MaterialDialog(getActivity(), null);
+        MaterialDialog csvDialog = new MaterialDialog(getActivity(), com.afollestad.materialdialogs.ModalDialog.INSTANCE);
         csvDialog.title(R.string.export_csv_dialog_title, null);
         DialogMultiChoiceExtKt.listItemsMultiChoice(csvDialog, null, csvItemList, null, initialSelected, true, false, (dialog, indices, texts) -> {
                     if (indices.length < 2) {
@@ -146,7 +146,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 });
         csvDialog.positiveButton(android.R.string.ok, null, d -> {
                     final int[] selectedIndices = currentSelection.clone();
-                    MaterialDialog cautionDialog = new MaterialDialog(getActivity(), null);
+                    MaterialDialog cautionDialog = new MaterialDialog(getActivity(), com.afollestad.materialdialogs.ModalDialog.INSTANCE);
                     cautionDialog.title(R.string.export_csv_caution_dialog_title, null);
                     cautionDialog.message(R.string.export_csv_caution_dialog_content, null, null);
                     cautionDialog.positiveButton(android.R.string.ok, null, d2 -> {
@@ -208,7 +208,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 java.util.List<CharSequence> wsItemList = new java.util.ArrayList<>();
                 for (CharSequence cs : wsItems) wsItemList.add(cs);
 
-                MaterialDialog wsDialog = new MaterialDialog(getActivity(), null);
+                MaterialDialog wsDialog = new MaterialDialog(getActivity(), com.afollestad.materialdialogs.ModalDialog.INSTANCE);
                 wsDialog.title(R.string.settings_web_services_title, null);
                 DialogMultiChoiceExtKt.listItemsMultiChoice(wsDialog, null, wsItemList, null, initialSel, true, false, (dialog, indices, texts) -> {
                             if (indices.length >= 1) {

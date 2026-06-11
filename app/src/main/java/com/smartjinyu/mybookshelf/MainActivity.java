@@ -342,7 +342,7 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case R.id.menu_main_sort:
                 CharSequence[] sortItems = getResources().getTextArray(R.array.main_sort_dialog);
-                MaterialDialog sortDialog = new MaterialDialog(this, null);
+                MaterialDialog sortDialog = new MaterialDialog(this, com.afollestad.materialdialogs.ModalDialog.INSTANCE);
                 sortDialog.title(R.string.sort_choice_dialog_title, null);
                 DialogSingleChoiceExtKt.listItemsSingleChoice(sortDialog, null, Arrays.asList(sortItems), null, sortMethod, true, 0, 0, (dialog, which, text) -> {
                     sortMethod = which;
@@ -1032,7 +1032,7 @@ public class MainActivity extends AppCompatActivity {
                     final java.util.ArrayList<CharSequence> labelNames = new java.util.ArrayList<>();
                     for (Label lb : labels) labelNames.add(lb.getTitle());
 
-                    MaterialDialog addLabelDialog = new MaterialDialog(MainActivity.this, null);
+                    MaterialDialog addLabelDialog = new MaterialDialog(MainActivity.this, com.afollestad.materialdialogs.ModalDialog.INSTANCE);
                     addLabelDialog.title(R.string.add_label_dialog_title, null);
                     DialogMultiChoiceExtKt.listItemsMultiChoice(addLabelDialog, null, labelNames, null, null, true, true, (dialog, indices, texts) -> {
                                 List<Label> allLabels = labelLab.getLabels();
@@ -1081,7 +1081,7 @@ public class MainActivity extends AppCompatActivity {
                     final java.util.ArrayList<CharSequence> bookShelfNames = new java.util.ArrayList<>();
                     for (BookShelf bs : bookShelves) bookShelfNames.add(bs.toString());
 
-                    MaterialDialog moveToDialog = new MaterialDialog(MainActivity.this, null);
+                    MaterialDialog moveToDialog = new MaterialDialog(MainActivity.this, com.afollestad.materialdialogs.ModalDialog.INSTANCE);
                     moveToDialog.title(R.string.move_to_dialog_title, null);
                     DialogListExtKt.listItems(moveToDialog, null, bookShelfNames, null, false, (dialog, position, text) -> {
                                 List<BookShelf> allShelves = bookShelfLab.getBookShelves();
@@ -1134,7 +1134,7 @@ public class MainActivity extends AppCompatActivity {
                         initialReadingStatus--;
                     }
                     CharSequence[] readingItems = getResources().getTextArray(R.array.reading_status_array_no_unset);
-                    MaterialDialog readingDialog = new MaterialDialog(MainActivity.this, null);
+                    MaterialDialog readingDialog = new MaterialDialog(MainActivity.this, com.afollestad.materialdialogs.ModalDialog.INSTANCE);
                     readingDialog.title(R.string.set_reading_status_title, null);
                     DialogSingleChoiceExtKt.listItemsSingleChoice(readingDialog, null, Arrays.asList(readingItems), null, initialReadingStatus, false, 0, 0, (dialog, which, text) -> {
                                 Log.i(TAG,"Set multi reading status = " + which);
@@ -1187,7 +1187,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void showRatingDialog() {
-        new MaterialDialog(this, null)
+        new MaterialDialog(this, com.afollestad.materialdialogs.ModalDialog.INSTANCE)
                 .title(R.string.rating_dialog_title, null)
                 .message(R.string.rating_dialog_content, null, null)
                 .positiveButton(R.string.rating_dialog_positive, null, d -> {

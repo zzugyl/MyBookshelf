@@ -144,7 +144,7 @@ public class BatchAddActivity extends AppCompatActivity {
         final java.util.ArrayList<CharSequence> bookShelfNames = new java.util.ArrayList<>();
         for (BookShelf bs : bookShelves) bookShelfNames.add(bs.toString());
 
-        MaterialDialog bsDialog = new MaterialDialog(BatchAddActivity.this, null);
+        MaterialDialog bsDialog = new MaterialDialog(BatchAddActivity.this, com.afollestad.materialdialogs.ModalDialog.INSTANCE);
         bsDialog.title(R.string.move_to_dialog_title, null);
         DialogListExtKt.listItems(bsDialog, null, bookShelfNames, null, false, (dialog, position, text) -> {
                     List<BookShelf> allShelves = bookShelfLab.getBookShelves();
@@ -189,7 +189,7 @@ public class BatchAddActivity extends AppCompatActivity {
         final java.util.ArrayList<CharSequence> labelNames = new java.util.ArrayList<>();
         for (Label lb : labels) labelNames.add(lb.getTitle());
 
-        MaterialDialog addLabelDialog = new MaterialDialog(BatchAddActivity.this, null);
+        MaterialDialog addLabelDialog = new MaterialDialog(BatchAddActivity.this, com.afollestad.materialdialogs.ModalDialog.INSTANCE);
         addLabelDialog.title(R.string.add_label_dialog_title, null);
         DialogMultiChoiceExtKt.listItemsMultiChoice(addLabelDialog, null, labelNames, null, null, true, true, (dialog, indices, texts) -> {
                     List<Label> allLabels = labelLab.getLabels();

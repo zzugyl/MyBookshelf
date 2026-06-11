@@ -337,7 +337,7 @@ public class BookEditActivity extends AppCompatActivity {
                 int[] initialSel = new int[selectedItemIndex.length];
                 for (int i = 0; i < selectedItemIndex.length; i++) initialSel[i] = selectedItemIndex[i];
 
-                MaterialDialog labelDialog = new MaterialDialog(BookEditActivity.this, null);
+                MaterialDialog labelDialog = new MaterialDialog(BookEditActivity.this, com.afollestad.materialdialogs.ModalDialog.INSTANCE);
                 labelDialog.title(R.string.label_choice_dialog_title, null);
                 DialogMultiChoiceExtKt.listItemsMultiChoice(labelDialog, null, labelNames, null, initialSel, true, true, (dialog, indices, texts) -> {
                             // set mBook labels
