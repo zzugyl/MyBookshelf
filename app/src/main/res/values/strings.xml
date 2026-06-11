@@ -2,6 +2,8 @@
     <string name="app_name">BookShelf</string>
 
     <!--Drawer-->
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
     <string name="drawer_header_email">Manage Your Books</string>
     <string name="drawer_item_books">Books</string>
     <string name="drawer_item_search">Search</string>

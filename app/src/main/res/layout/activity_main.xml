@@ -27,7 +27,7 @@
 
     <com.mikepenz.materialdrawer.widget.MaterialDrawerSliderView
         android:id="@+id/slider"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:fitsSystemWindows="true" />

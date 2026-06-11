@@ -25,6 +25,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.Toolbar;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import android.util.Log;
@@ -388,6 +389,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setDrawer(long selectionIdentifier) {
+        Log.i(TAG, "setDrawer called with selectionIdentifier = " + selectionIdentifier);
         final List<Label> labels = LabelLab.get(this).getLabels();
 
         // Initialize DrawerLayout reference
@@ -459,10 +461,13 @@ public class MainActivity extends AppCompatActivity {
             items.add(labelItem);
         }
 
-        MaterialDrawerSliderViewExtensionsKt.setItems(mSlider, items.toArray(new IDrawerItem[0]));
+        mSlider.post(() -> {
+            Log.i(TAG, "setItems called with " + items.size() + " items");
+            MaterialDrawerSliderViewExtensionsKt.setItems(mSlider, items.toArray(new IDrawerItem[0]));
+            Log.i(TAG, "setItems completed, adapter item count = " + mSlider._adapter.getItemCount());
 
-        // Set click listener
-        mSlider.setOnDrawerItemClickListener(new kotlin.jvm.functions.Function3<View, IDrawerItem<?>, Integer, Boolean>() {
+            // Set click listener
+            mSlider.setOnDrawerItemClickListener(new kotlin.jvm.functions.Function3<View, IDrawerItem<?>, Integer, Boolean>() {
             @Override
             public Boolean invoke(View view, IDrawerItem<?> drawerItem, Integer position) {
                         if (drawerItem != null) {
@@ -518,8 +523,18 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
 
-        if (selectionIdentifier != -1) {
-            setDrawerSelection(selectionIdentifier);
+            if (selectionIdentifier != -1) {
+                setDrawerSelection(selectionIdentifier);
+            }
+        });
+
+        // Add hamburger menu icon to toolbar
+        if (mDrawerLayout != null && mToolbar != null) {
+            ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                    this, mDrawerLayout, mToolbar,
+                    R.string.drawer_open, R.string.drawer_close);
+            mDrawerLayout.addDrawerListener(toggle);
+            toggle.syncState();
         }
     }
 
