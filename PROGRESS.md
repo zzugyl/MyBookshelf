@@ -106,6 +106,7 @@
 | a589a94 | 清理残留死代码，移除 compressor 模块 RxJava 依赖 |
 | 6a80319 | 升级 Material Components 1.2.1 → 1.12.0 |
 | be88086 | 升级 MaterialDrawer 6.1.2 → 9.0.2 |
+| 4123f9b | 升级 material-dialogs 0.9.6 → 3.3.0 |
 
 ## 待处理
 
@@ -125,10 +126,9 @@
 - [ ] 替换已停维库：clans FAB、barcodescanner
 - [x] 升级 Material Components 1.2.1 → 1.12.0
 - [x] 升级 MaterialDrawer 6.1.2 → 9.0.2
-- [~] 升级 material-dialogs 0.9.6 → 3.3.0（进行中）
+- [x] 升级 material-dialogs 0.9.6 → 3.3.0
   - [x] 新建 DialogHelper 工具类封装 3.x API
-  - [x] 迁移 UpdateCheck、BatchListFragment、BatchScanFragment、SingleAddActivity
-  - [ ] 迁移 SettingsFragment、BatchAddActivity、BookEditActivity、MainActivity
+  - [x] 迁移全部 8 个文件（UpdateCheck、BatchListFragment、BatchScanFragment、SingleAddActivity、SettingsFragment、BatchAddActivity、BookEditActivity、MainActivity）
 - [x] App Center SDK 退役处理（已移除）
 - [x] 移除 compressor 模块 RxJava 依赖（未被调用，直接移除）
 - [ ] Gradle 语法现代化（plugins DSL、移除 allprojects/buildscript）
@@ -143,4 +143,4 @@
 ## 已知问题
 - 豆瓣 API 代理服务故障，暂时不可用
 - 项目无测试用例，无 CI/CD
-- material-dialogs 3.3.0 迁移未完成，当前编译不过（4 个文件待迁移）
+- 项目无测试用例，无 CI/CD
