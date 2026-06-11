@@ -107,6 +107,7 @@
 | 6a80319 | 升级 Material Components 1.2.1 → 1.12.0 |
 | be88086 | 升级 MaterialDrawer 6.1.2 → 9.0.2 |
 | 4123f9b | 升级 material-dialogs 0.9.6 → 3.3.0 |
+| 3bdf694 | Gradle 语法现代化 |
 
 ## 待处理
 
@@ -131,7 +132,7 @@
   - [x] 迁移全部 8 个文件（UpdateCheck、BatchListFragment、BatchScanFragment、SingleAddActivity、SettingsFragment、BatchAddActivity、BookEditActivity、MainActivity）
 - [x] App Center SDK 退役处理（已移除）
 - [x] 移除 compressor 模块 RxJava 依赖（未被调用，直接移除）
-- [ ] Gradle 语法现代化（plugins DSL、移除 allprojects/buildscript）
+- [x] Gradle 语法现代化（plugins DSL、移除 allprojects/buildscript）
 - [x] 清理注释掉的死代码和过期 TODO/FIXME
 - [x] 清理残留死代码（SingleAddActivity、CoverDownloader）
 
