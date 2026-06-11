@@ -1,18 +1,21 @@
-apply plugin: 'com.android.library'
+plugins {
+    id 'com.android.library'
+}
 
 android {
-    namespace "id.zelory.compressor"
-    compileSdk project.CompileSdkVersion
+    namespace = "id.zelory.compressor"
+    compileSdk = project.CompileSdkVersion
 
     defaultConfig {
-        minSdk 21
-        targetSdk project.TargetSdkVersion
-        versionCode 5
-        versionName "1.0.5"
+        minSdk = 21
+        targetSdk = project.TargetSdkVersion
+        versionCode = 5
+        versionName = "1.0.5"
     }
+
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled = false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }

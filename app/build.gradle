@@ -1,4 +1,6 @@
-apply plugin: 'com.android.application'
+plugins {
+    id 'com.android.application'
+}
 
 def getGitCommitCount() {
     def proc = "git rev-list --count HEAD".execute(null, rootProject.projectDir)
@@ -23,29 +25,30 @@ def static getGoogleBooksApiKey() {
 }
 
 android {
-    namespace "com.smartjinyu.mybookshelf"
-    compileSdk project.CompileSdkVersion
+    namespace = "com.smartjinyu.mybookshelf"
+    compileSdk = project.CompileSdkVersion
+
     defaultConfig {
-        applicationId "com.smartjinyu.mybookshelf"
-        minSdk 21
-        targetSdk project.TargetSdkVersion
-        versionCode getGitCommitCount()
-        versionName "2.0"
+        applicationId = "com.smartjinyu.mybookshelf"
+        minSdk = 21
+        targetSdk = project.TargetSdkVersion
+        versionCode = getGitCommitCount()
+        versionName = "2.0"
     }
 
     signingConfigs {
         release {
-            storeFile file("release.keystore")
-            storePassword "android"
-            keyAlias "mybookshelf"
-            keyPassword "android"
+            storeFile = file("release.keystore")
+            storePassword = "android"
+            keyAlias = "mybookshelf"
+            keyPassword = "android"
         }
     }
 
     buildTypes {
         release {
-            signingConfig signingConfigs.release
-            minifyEnabled false
+            signingConfig = signingConfigs.release
+            minifyEnabled = false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             buildConfigField 'String', "doubanApiKey", "\"" + getDoubanApiKey() + "\""
             buildConfigField 'String', "doubanServer", "\"${douban_server_url}\""
@@ -57,15 +60,18 @@ android {
             buildConfigField 'String', "googleBooksApiKey", "\"" + getGoogleBooksApiKey() + "\""
         }
     }
+
     lint {
-        abortOnError false
+        abortOnError = false
     }
+
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
+
     buildFeatures {
-        buildConfig true
+        buildConfig = true
     }
 }
 
@@ -100,6 +106,4 @@ dependencies {
         exclude group: 'stax', module: 'stax'
     }
     implementation files('libs/opencsv-3.9.jar')
-
-
 }
