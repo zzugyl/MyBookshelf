@@ -33,7 +33,7 @@ android {
         minSdk = 21
         targetSdk = project.TargetSdkVersion
         versionCode = getGitCommitCount()
-        versionName = "2.0"
+        versionName = "2.1"
     }
 
     signingConfigs {

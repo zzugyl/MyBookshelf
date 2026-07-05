@@ -4,6 +4,8 @@
     android:minHeight="?attr/actionBarSize"
     android:background="@color/actionbar_opacity"
     android:theme="@style/TransparentToolbar"
+    app:popupTheme="@style/ThemeOverlay.MaterialComponents.Light"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android" />

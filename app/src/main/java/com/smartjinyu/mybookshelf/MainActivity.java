@@ -95,6 +95,7 @@ public class MainActivity extends AppCompatActivity {
     private MenuItem searchItem;
     private SearchView searchView;
     private CoordinatorLayout mCoordinatorLayout;
+    private ActionBarDrawerToggle mDrawerToggle;
 
     private BookAdapter mRecyclerViewAdapter;
     private ActionMode mActionMode;
@@ -248,6 +249,9 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        if (mDrawerToggle != null && mDrawerToggle.onOptionsItemSelected(item)) {
+            return true;
+        }
         switch (item.getItemId()) {
             case R.id.menu_main_rename_bookshelf:
                 if (mSpinner != null) {
@@ -389,7 +393,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setDrawer(long selectionIdentifier) {
-        Log.i(TAG, "setDrawer called with selectionIdentifier = " + selectionIdentifier);
         final List<Label> labels = LabelLab.get(this).getLabels();
 
         // Initialize DrawerLayout reference
@@ -462,9 +465,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         mSlider.post(() -> {
-            Log.i(TAG, "setItems called with " + items.size() + " items");
             MaterialDrawerSliderViewExtensionsKt.setItems(mSlider, items.toArray(new IDrawerItem[0]));
-            Log.i(TAG, "setItems completed, adapter item count = " + mSlider._adapter.getItemCount());
 
             // Set click listener
             mSlider.setOnDrawerItemClickListener(new kotlin.jvm.functions.Function3<View, IDrawerItem<?>, Integer, Boolean>() {
@@ -528,13 +529,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // Add hamburger menu icon to toolbar
-        if (mDrawerLayout != null && mToolbar != null) {
-            ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+        // Initialize ActionBarDrawerToggle once, sync on every call
+        if (mDrawerToggle == null && mDrawerLayout != null && mToolbar != null) {
+            mDrawerToggle = new ActionBarDrawerToggle(
                     this, mDrawerLayout, mToolbar,
                     R.string.drawer_open, R.string.drawer_close);
-            mDrawerLayout.addDrawerListener(toggle);
-            toggle.syncState();
+            mDrawerLayout.addDrawerListener(mDrawerToggle);
+        }
+        if (mDrawerToggle != null) {
+            mDrawerToggle.syncState();
         }
     }
 

@@ -85,6 +85,8 @@
     <string name="delete_label_dialog_positive">删除</string>
     <string name="delete_label_dialog_title">删除标签</string>
     <string name="drawer_header_email">管理您的书籍</string>
+    <string name="drawer_open">打开导航抽屉</string>
+    <string name="drawer_close">关闭导航抽屉</string>
     <string name="drawer_item_about">关于</string>
     <string name="drawer_item_books">书籍</string>
     <string name="drawer_item_create_new_label">添加新标签</string>

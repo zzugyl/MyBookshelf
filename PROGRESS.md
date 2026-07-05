@@ -135,6 +135,11 @@
 - [x] Gradle 语法现代化（plugins DSL、移除 allprojects/buildscript）
 - [x] 清理注释掉的死代码和过期 TODO/FIXME
 - [x] 清理残留死代码（SingleAddActivity、CoverDownloader）
+- [x] 修复 ActionBarDrawerToggle 生命周期泄漏
+  - [x] toggle 存储为字段，避免每次 setDrawer() 重复 addDrawerListener
+  - [x] onOptionsItemSelected() 委托给 toggle，汉堡图标点击可用
+  - [x] 移除 setDrawer() 中调试 Log.i()
+  - [x] 补全 compressor/FileUtil.java getColumnIndex() 空值防护
 
 ### API 服务
 - [ ] 修复豆瓣 API 代理服务（47.108.87.209:9268）
@@ -143,5 +148,4 @@
 
 ## 已知问题
 - 豆瓣 API 代理服务故障，暂时不可用
-- 项目无测试用例，无 CI/CD
 - 项目无测试用例，无 CI/CD

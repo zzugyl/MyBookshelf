@@ -16,6 +16,7 @@
         <item name="android:windowActionBarOverlay">true</item>
         <!-- Support Library compability -->
         <item name="windowActionBarOverlay">true</item>
+        <item name="android:popupMenuStyle">@style/Widget.AppCompat.Light.PopupMenu.Overflow</item>
     </style>
 
     <style name="AppOverlayTheme" parent="@style/Theme.MaterialComponents.Light">
@@ -29,6 +30,12 @@
         <item name="colorAccent">@color/colorPrimaryLight</item>
         <item name="android:textColorPrimary">@color/colorPrimaryText</item>
         <item name="android:textColorSecondary">@color/colorSecondaryText</item>
+        <item name="actionBarPopupTheme">@style/ThemeOverlay.MyBookshelf.PopupMenu</item>
+    </style>
+
+    <style name="ThemeOverlay.MyBookshelf.PopupMenu" parent="@style/Widget.MaterialComponents.PopupMenu">
+        <item name="android:popupBackground">?attr/colorControlHighlight</item>
+        <item name="android:textColorPrimary">@color/colorPrimaryText</item>
     </style>
 
 
