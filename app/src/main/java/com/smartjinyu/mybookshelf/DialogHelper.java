@@ -1,6 +1,7 @@
 package com.smartjinyu.mybookshelf;
 
 import android.content.Context;
+import android.text.InputType;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -95,7 +96,7 @@ public class DialogHelper {
                                            @Nullable Runnable onNegative) {
         MaterialDialog dialog = new MaterialDialog(context, com.afollestad.materialdialogs.ModalDialog.INSTANCE);
         dialog.title(titleRes, null);
-        DialogInputExtKt.input(dialog, null, hintRes, prefill, null, 0, inputMaxLength, true, true, (d, input) -> {
+        DialogInputExtKt.input(dialog, null, hintRes, prefill, null, InputType.TYPE_CLASS_TEXT, inputMaxLength, true, false, (d, input) -> {
             onPositive.onInput(d, input.toString());
             return kotlin.Unit.INSTANCE;
         });
@@ -118,7 +119,7 @@ public class DialogHelper {
                                            @Nullable Runnable onNegative) {
         MaterialDialog dialog = new MaterialDialog(context, com.afollestad.materialdialogs.ModalDialog.INSTANCE);
         dialog.title(null, title);
-        DialogInputExtKt.input(dialog, hint, null, prefill, null, 0, inputMaxLength, true, true, (d, input) -> {
+        DialogInputExtKt.input(dialog, hint, null, prefill, null, InputType.TYPE_CLASS_TEXT, inputMaxLength, true, false, (d, input) -> {
             onPositive.onInput(d, input.toString());
             return kotlin.Unit.INSTANCE;
         });

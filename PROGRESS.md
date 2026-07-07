@@ -81,7 +81,7 @@
 - 移除 build.gradle 中 io.reactivex:rxjava:1.3.0 依赖
 
 ## 当前版本
-- versionName: "2.0"
+- versionName: "2.1"
 - versionCode: 动态获取（git commit 次数）
 
 ## 签名配置
@@ -108,6 +108,7 @@
 | be88086 | 升级 MaterialDrawer 6.1.2 → 9.0.2 |
 | 4123f9b | 升级 material-dialogs 0.9.6 → 3.3.0 |
 | 3bdf694 | Gradle 语法现代化 |
+| f81f69c | 修复 Toggle 生命周期泄漏 + overflow menu + 版本号升至 2.1 |
 
 ## 待处理
 
@@ -140,6 +141,10 @@
   - [x] onOptionsItemSelected() 委托给 toggle，汉堡图标点击可用
   - [x] 移除 setDrawer() 中调试 Log.i()
   - [x] 补全 compressor/FileUtil.java getColumnIndex() 空值防护
+- [x] 修复扫描页面 overflow menu 文字不可见（白字白底）
+  - [x] toolbar_singleadd.xml 添加 popupTheme="@style/ThemeOverlay.MaterialComponents.Light"
+  - [x] 补全 drawer_open/drawer_close 中文翻译
+  - [x] versionName 升至 2.1
 
 ### API 服务
 - [ ] 修复豆瓣 API 代理服务（47.108.87.209:9268）
