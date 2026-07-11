@@ -166,12 +166,13 @@ public class SingleAddActivity extends AppCompatActivity implements ZXingScanner
                     return kotlin.Unit.INSTANCE;
                 });
                 isbnDialog.negativeButton(android.R.string.cancel, null, d -> {
+                    d.dismiss();
                     resumeCamera();
                     return kotlin.Unit.INSTANCE;
                 });
                 com.afollestad.materialdialogs.input.DialogInputExtKt.input(isbnDialog,
                         null, R.string.input_isbn_manually_edit_text, null, null,
-                        InputType.TYPE_CLASS_NUMBER, 0, false, true, (d, input) -> {
+                        InputType.TYPE_CLASS_NUMBER, 0, false, false, (d, input) -> {
                             int length = input.length();
                             if (length == 10 || length == 13) {
                                 DialogActionExtKt.getActionButton(d, WhichButton.POSITIVE).setEnabled(true);
@@ -182,6 +183,8 @@ public class SingleAddActivity extends AppCompatActivity implements ZXingScanner
                         });
                 isbnDialog.noAutoDismiss();
                 isbnDialog.show();
+                // Initially disable "Add" button until valid ISBN entered
+                DialogActionExtKt.getActionButton(isbnDialog, WhichButton.POSITIVE).setEnabled(false);
                 break;
 
             case R.id.menu_simple_add_totally_manual:
@@ -288,6 +291,8 @@ public class SingleAddActivity extends AppCompatActivity implements ZXingScanner
          * event = 0, unexpected response code
          * event = 1, request failed
          */
+        // Activity may have been destroyed while waiting for network response
+        if (isFinishing() || isDestroyed()) return;
         indexOfServiceTested += 1;
         if (indexOfServiceTested < selectedServices.length) {
             // test next

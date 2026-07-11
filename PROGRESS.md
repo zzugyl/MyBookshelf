@@ -110,6 +110,7 @@
 | 3bdf694 | Gradle 语法现代化 |
 | f81f69c | 修复 Toggle 生命周期泄漏 + overflow menu + 版本号升至 2.1 |
 | c810236 | 修复标签输入键盘无法唤起 + 空标签可添加 |
+| (未提交) | 修复 ISBN 手动输入对话框：添加按钮初始置灰 + 取消无反应 + BadTokenException 崩溃 |
 
 ## 待处理
 
@@ -149,6 +150,10 @@
   - [x] 修复标签输入对话框 bug
     - [x] inputType=0 → TYPE_CLASS_TEXT，键盘可正常唤起
     - [x] allowEmpty=true → false，空字符无法添加
+  - [x] 修复 ISBN 手动输入对话框
+    - [x] 添加按钮初始置灰，输入 10/13 位 ISBN 后启用
+    - [x] 取消按钮 dismiss 对话框 + resumeCamera
+    - [x] fetchFailed 增加 Activity 存活检查，修复 BadTokenException 崩溃
 
 ### API 服务
 - [ ] 修复豆瓣 API 代理服务（47.108.87.209:9268）
